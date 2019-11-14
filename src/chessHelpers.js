@@ -100,9 +100,9 @@ export const defaultSetupWhite = {
 	}, 6: { 
 		0:['white','pawn'],
 		1:['white','pawn'],
-		2:['white','pawn'],
-		/*3:['white','pawn'],*/
-		4:['white','pawn'],
+		// 2:['white','pawn'],
+		// 3:['white','pawn'],
+		// 4:['white','pawn'],
 		5:['white','pawn'],
 		6:['white','pawn'],
 		7:['white','pawn'] 

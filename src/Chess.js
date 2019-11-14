@@ -8,7 +8,11 @@ class Chess extends Component {
 		this.handleNewGame = this.handleNewGame.bind(this);
 		this.handleLoadGame = this.handleLoadGame.bind(this);
 		this.state = {
-			pieces: chessHelpers.defaultSetupWhite /*an array of coordinate-piece objects*/
+			boardSetup: chessHelpers.defaultSetupWhite, /*an array of coordinate-piece objects*/
+			highlightedSquares: [], 
+			selectedSquare: null, 
+			playerTurn: "white",
+
 		}
 	}
 
@@ -22,9 +26,8 @@ class Chess extends Component {
 	}
 
 	render() {
-		console.log(this.state.pieces)
-		return this.state.pieces && <Board className="board"
-			pieces = {this.state.pieces}
+		return this.state && <Board className="board"
+			{...this.state}
 		></Board>
 	}
 }
@@ -41,16 +44,15 @@ class Board extends Component {
 			color={(rank%2+squareId%2
 				/*this plus one for rotating board*/
 				+1 )%2===0 ? "black" : "white"}
-			pieceID={null}
 			rank={rank}
 			file={file}
 			chesspiece={piece}
-			boardSetup={this.props.pieces}
+			{...this.props}
 		></Square>
 	}
 
 	render() {
-		const pieces = this.props.pieces;
+		const pieces = this.props.boardSetup;
 		const boardRows = Array(8).fill(1).map((_, i) => i);
 		const boardCols = Array(8).fill(1).map((_, i) => i);
 		return pieces && <div>
@@ -75,10 +77,10 @@ class Board extends Component {
 }
 
 class Square extends Component {
-	// renderPiece(chesspiece) {
-	// 	return <Piece></Piece>
-	// }
-
+	constructor(props) {
+		super(props);
+		console.log(this.props)
+	}
 	render() {
 		const currentChesspiece = this.props.chesspiece;
 		const pieceColor = currentChesspiece ? currentChesspiece[0] : null;
@@ -93,7 +95,6 @@ class Square extends Component {
 			></Piece>}
 		</button>
 	}
-
 }
 
 class Piece extends Component {
@@ -123,10 +124,9 @@ class Piece extends Component {
 				return [coord[0]-currentPosition[0], coord[1]-currentPosition[1]]
 			});
 			const movesUnlimitedRange = eligibleDeltas.map((deltaCoord)=>{
-				const allMovesForDelta = this.extendForUnlimitedRange(piece, currentPosition, deltaCoord)
-				console.log(allMovesForDelta)
-				return allMovesForDelta
+				return this.extendForUnlimitedRange(piece, currentPosition, deltaCoord)
 			});
+			return movesUnlimitedRange.flat()
 		}
 	}
 
@@ -134,16 +134,18 @@ class Piece extends Component {
 		const dx=deltaMovement[0];
 		const dy=deltaMovement[1];
 		const newCoord = [currentPosition[0]+dx, currentPosition[1]+dy]
-		// check if valid
-		// eliminate off-board coords
-		if (newCoord[0]<0 || newCoord[0]>7 || newCoord[1]<0 || newCoord[1]>7) {return eligibleMoves}
+		// check if offBoard
+		const coordinateIsOffBoard = newCoord[0]<0 || newCoord[0]>7 || newCoord[1]<0 || newCoord[1]>7
+		if (coordinateIsOffBoard) {
+			return eligibleMoves
+		}
 		// see if occupant exists in space 
 		const occupant = chessHelpers.findPieceAt(newCoord[1], newCoord[0], piece.boardSetup);
 		const occupantColor = occupant ? occupant[0] : null;
 		if (occupantColor===piece.color) {
 			return eligibleMoves;
-		} else if (occupantColor && occupantColor !==piece.color) {
-			eligibleMoves.push(newCoord)
+		} else if (occupantColor && occupantColor!==piece.color) {
+			eligibleMoves.push(newCoord);
 			return eligibleMoves;
 		}
 		// if we get to this point we have an eligible coord
@@ -152,9 +154,14 @@ class Piece extends Component {
 		return this.extendForUnlimitedRange(piece, newCoord, deltaMovement, eligibleMoves)
 	}
 
+	handleClick() {
+
+	}
+
 	render() {
 		if (this.props.type==='queen') {
-			let moves = this.getEligibleMoves(this.props)
+			let moves = this.getEligibleMoves(this.props)	
+			console.log(moves)
 
 		}
 		return <div>
