@@ -26,40 +26,37 @@ class Chess extends Component {
 	}
 
 	getEligibleMoves(squareRank, squareFile, boardSetup) {
-		// if (!piece.symbol || piece.pieceColor!==piece.playerTurn) return false;
+		// check if this square has a piece
 		const currentPiece = chessHelpers.getValueAtSquare(squareRank, squareFile, boardSetup);
 		if (!currentPiece) return false;
 		const currentPosition = [squareFile, squareRank];
 		const pieceAttributes = chessHelpers.pieceAttributes[currentPiece.pieceType]
 		const unitMoves = pieceAttributes.unitMoves;
-		// first check for any directions that don't immediately go off-board
 		const newCoordinates = unitMoves.map((deltaCoord) => {
 			const negativeIfWhite = currentPiece.pieceColor==='white' ? -1 : 1;  
 			return [(squareFile+negativeIfWhite*deltaCoord[0]), (squareRank+negativeIfWhite*deltaCoord[1])] 
 		});
+		// first check for any directions that don't immediately go off-board
 		const eligibleUnitMoves = newCoordinates.filter((coord) => {
-			// eliminate off-board coords
-			if (coord[0]<0 || coord[0]>7 || coord[1]<0 || coord[1]>7) {return false}
-			// see if occupant of same color exists in new square 
+			if (coord[0]<0 || coord[0]>7 || coord[1]<0 || coord[1]>7) return false;
+			// examine target square's occupants 
 			const occupant = chessHelpers.getValueAtSquare(coord[1], coord[0], boardSetup);
-			// return false for any of the following:
-			if (occupant && currentPiece.pieceType==="pawn") return false
+			// return false if pawn is blocked
+			if (occupant && currentPiece.pieceType==="pawn") return false; 
 			const occupantColor = occupant ? occupant.pieceColor : null;
-			return (occupantColor===currentPiece.pieceColor) ? false : true;
+			return (occupantColor===currentPiece.pieceColor) ? false : true; // cannot capture own piece
 		})
+		// if piece does not have ultd range then return otherwise recurse with extendForUnlimitedRange 
 		if (!pieceAttributes.unlimitedRange) {
 			const specialMoves = this.getPawnSpecialMoves(currentPiece, squareRank, squareFile, boardSetup);
-			// console.log(specialMoves)
 			return eligibleUnitMoves.concat(specialMoves);
 		}	else {
+			// we use existing unit moves to extend range since all relevant pieces use straight line movement
 			if (eligibleUnitMoves.length===0) return null;
-			const eligibleDeltas = eligibleUnitMoves.map((coord)=>{
-				return [coord[0]-squareFile, coord[1]-squareRank]
-			});
+			const eligibleDeltas = eligibleUnitMoves.map((coord)=> [coord[0]-squareFile, coord[1]-squareRank] );
 			const movesUnlimitedRange = eligibleDeltas.map((deltaCoord)=>{
 				return this.extendForUnlimitedRange(currentPiece, currentPosition, deltaCoord, boardSetup)
 			});
-			console.log(movesUnlimitedRange.flat())
 			return movesUnlimitedRange.flat();
 		}
 	}
@@ -124,6 +121,8 @@ class Chess extends Component {
 		let validMoves = [];
 		const negativeIfWhite = (currentPiece.pieceColor==='white') ? -1 : 1
 		if (currentPiece.pieceType==='pawn') {
+
+			/*CHECK FOR DIAGONAL CAPTURE*/
 			const captureCoordinates = chessHelpers.pawnSpecialMoves
 				.diagonalCapture.map((move) => {
 					const newX = move[0]+file;
@@ -135,8 +134,10 @@ class Chess extends Component {
 			const eligibleCapture = captureCoordinates.filter((coord) => {
 				const colorAndPiece = chessHelpers.getValueAtSquare(coord[1], coord[0], boardSetup)
 				return colorAndPiece && colorAndPiece.pieceColor!==currentPiece.pieceColor;
-			})
+			});
 			validMoves.push(...eligibleCapture);
+
+			/*CHECK FOR DOUBLESTEP*/
 			if (!currentPiece.hasMoved) {
 				/*	if pawn is on the second rank and no piece is two in front
 				add double advancement coordinates */	
@@ -147,6 +148,8 @@ class Chess extends Component {
 					validMoves.push([file, rank+negativeIfWhite*2])
 				}
 			}
+
+			/*CHECK FOR ENPASSANT*/
 			if (this.state.enPassantAvailableAt) {
 				const vulnerablePawnPosition = this.state.enPassantAvailableAt
 				const enPassantMoves = this
