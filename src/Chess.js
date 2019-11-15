@@ -25,52 +25,57 @@ class Chess extends Component {
 	handleLoadGame() {
 	}
 
-	getEligibleMoves(piece) {
-		if (!piece.symbol || piece.pieceColor!==piece.playerTurn) return false;
-		const currentPosition = piece.coordinate;
-		const unitMoves = piece.unitMoves;
+	getEligibleMoves(squareRank, squareFile, boardSetup) {
+		// if (!piece.symbol || piece.pieceColor!==piece.playerTurn) return false;
+		const currentPiece = chessHelpers.getValueAtSquare(squareRank, squareFile, boardSetup);
+		if (!currentPiece) return false;
+		const currentPosition = [squareFile, squareRank];
+		const pieceAttributes = chessHelpers.pieceAttributes[currentPiece.pieceType]
+		const unitMoves = pieceAttributes.unitMoves;
 		// first check for any directions that don't immediately go off-board
 		const newCoordinates = unitMoves.map((deltaCoord) => {
-			const negativeIfWhite = piece.pieceColor==='white' ? -1 : 1;  
-			return [(currentPosition[0]+negativeIfWhite*deltaCoord[0]), (currentPosition[1]+negativeIfWhite*deltaCoord[1])] 
+			const negativeIfWhite = currentPiece.pieceColor==='white' ? -1 : 1;  
+			return [(squareFile+negativeIfWhite*deltaCoord[0]), (squareRank+negativeIfWhite*deltaCoord[1])] 
 		});
 		const eligibleUnitMoves = newCoordinates.filter((coord) => {
 			// eliminate off-board coords
 			if (coord[0]<0 || coord[0]>7 || coord[1]<0 || coord[1]>7) {return false}
 			// see if occupant of same color exists in new square 
-			const occupant = chessHelpers.getValueAtSquare(coord[1], coord[0], piece.boardSetup);
+			const occupant = chessHelpers.getValueAtSquare(coord[1], coord[0], boardSetup);
 			// return false for any of the following:
-			if (occupant && piece.pieceType==="pawn") return false
+			if (occupant && currentPiece.pieceType==="pawn") return false
 			const occupantColor = occupant ? occupant.pieceColor : null;
-			return (occupantColor===piece.pieceColor) ? false : true;
+			return (occupantColor===currentPiece.pieceColor) ? false : true;
 		})
-		if (!piece.unlimitedRange) {
-			const specialMoves = this.getPawnSpecialMoves(piece);
+		if (!pieceAttributes.unlimitedRange) {
+			const specialMoves = this.getPawnSpecialMoves(currentPiece, squareRank, squareFile, boardSetup);
 			// console.log(specialMoves)
 			return eligibleUnitMoves.concat(specialMoves);
 		}	else {
 			if (eligibleUnitMoves.length===0) return null;
 			const eligibleDeltas = eligibleUnitMoves.map((coord)=>{
-				return [coord[0]-currentPosition[0], coord[1]-currentPosition[1]]
+				return [coord[0]-squareFile, coord[1]-squareRank]
 			});
 			const movesUnlimitedRange = eligibleDeltas.map((deltaCoord)=>{
-				return this.extendForUnlimitedRange(piece, currentPosition, deltaCoord)
+				return this.extendForUnlimitedRange(currentPiece, currentPosition, deltaCoord, boardSetup)
 			});
-			return movesUnlimitedRange.flat()
+			console.log(movesUnlimitedRange.flat())
+			return movesUnlimitedRange.flat();
 		}
 	}
 
-	extendForUnlimitedRange(piece, currentPosition, deltaMovement, eligibleMoves=[]) {
+	extendForUnlimitedRange(piece, currentPosition, deltaMovement, boardSetup, eligibleMoves=[]) {
 		const dx=deltaMovement[0];
 		const dy=deltaMovement[1];
 		const newCoord = [currentPosition[0]+dx, currentPosition[1]+dy]
 		// check if offBoard
+
 		const coordinateIsOffBoard = newCoord[0]<0 || newCoord[0]>7 || newCoord[1]<0 || newCoord[1]>7
 		if (coordinateIsOffBoard) {
 			return eligibleMoves
 		}
 		// see if occupant exists in space 
-		const occupant = chessHelpers.getValueAtSquare(newCoord[1], newCoord[0], piece.boardSetup);
+		const occupant = chessHelpers.getValueAtSquare(newCoord[1], newCoord[0], boardSetup);
 		const occupantColor = occupant ? occupant.pieceColor : null;
 		if (occupantColor===piece.pieceColor) {
 			return eligibleMoves;
@@ -81,12 +86,13 @@ class Chess extends Component {
 		// if we get to this point we have an eligible coord
 		// push and recurse
 		eligibleMoves.push(newCoord);
-		return this.extendForUnlimitedRange(piece, newCoord, deltaMovement, eligibleMoves)
+		console.log(eligibleMoves)
+		return this.extendForUnlimitedRange(piece, newCoord, deltaMovement, boardSetup, eligibleMoves)
 	}
 
 	handleSquareClick(props) {
-		let moves = this.getEligibleMoves(props)	
 		if (!this.state.hotSquare){
+			let moves = this.getEligibleMoves(props.coordinate[1], props.coordinate[0], this.state.boardSetup)	
 			this.setState((state) => ({
 				highlightedSquares: moves ? this.groupByRank(moves) : {},
 				hotSquare: props.coordinate
@@ -110,17 +116,14 @@ class Chess extends Component {
 	    return acc;
 	  }, {});
 	}
-
 	
-	getPawnSpecialMoves(piece) {
+	getPawnSpecialMoves(currentPiece, rank, file, boardSetup) {
 		// no need to check for offboard here; 
 		// capture and doublestep moves restrict to board space
 		// enpassant capture already restricted in state setter
 		let validMoves = [];
-		const negativeIfWhite = (piece.pieceColor==='white') ? -1 : 1
-		if (piece.pieceType==='pawn') {
-			const file = piece.coordinate[0];
-			const rank = piece.coordinate[1];
+		const negativeIfWhite = (currentPiece.pieceColor==='white') ? -1 : 1
+		if (currentPiece.pieceType==='pawn') {
 			const captureCoordinates = chessHelpers.pawnSpecialMoves
 				.diagonalCapture.map((move) => {
 					const newX = move[0]+file;
@@ -130,63 +133,60 @@ class Chess extends Component {
 			/*if boardSetup's captureCoordinates contain enemies, 
 			then add capture coordinates*/
 			const eligibleCapture = captureCoordinates.filter((coord) => {
-				const colorAndPiece = chessHelpers.getValueAtSquare(coord[1], coord[0], piece.boardSetup)
-				console.log(colorAndPiece)
-				return colorAndPiece && colorAndPiece.pieceColor!==piece.playerTurn;
+				const colorAndPiece = chessHelpers.getValueAtSquare(coord[1], coord[0], boardSetup)
+				return colorAndPiece && colorAndPiece.pieceColor!==currentPiece.pieceColor;
 			})
 			validMoves.push(...eligibleCapture);
-			if (!piece.hasMoved) {
-	/*	if pawn is on the second rank and no piece is two in front
-			add double advancement coordinates */	
-				const file = piece.coordinate[0];
-				const rank = piece.coordinate[1];
-				// if a piece is found at either 1 or 2 ranks forward, not valid
+			if (!currentPiece.hasMoved) {
+				/*	if pawn is on the second rank and no piece is two in front
+				add double advancement coordinates */	
 				const blocked = 
-					chessHelpers.getValueAtSquare(rank+negativeIfWhite*2, file, piece.boardSetup) &&
-					chessHelpers.getValueAtSquare(rank+negativeIfWhite*1, file, piece.boardSetup);
+					chessHelpers.getValueAtSquare(rank+negativeIfWhite*2, file, boardSetup) ||
+					chessHelpers.getValueAtSquare(rank+negativeIfWhite*1, file, boardSetup);
 				if (!blocked) {
 					validMoves.push([file, rank+negativeIfWhite*2])
 				}
 			}
 			if (this.state.enPassantAvailableAt) {
-				console.log('this.state.enPassantAvailableAt'+this.state.enPassantAvailableAt)
 				const vulnerablePawnPosition = this.state.enPassantAvailableAt
 				const enPassantMoves = this
 					.getEnPassantEligibility(vulnerablePawnPosition[1], vulnerablePawnPosition[0])
-				console.log(chessHelpers.getValueAtSquare(rank,file,enPassantMoves))
 				if (chessHelpers.getValueAtSquare(rank,file,enPassantMoves)) {
 					validMoves.push([vulnerablePawnPosition[0],vulnerablePawnPosition[1]+negativeIfWhite])
 				}
 			}
 		}
-
 		return validMoves;
 	}
 
-	executeMove(boardSetup, highlightedSquares, coordinate, hotSquare) {
-		const rank = coordinate[1];
-		const file = coordinate[0];
-		if (chessHelpers.getValueAtSquare(rank, file, highlightedSquares)) {
+	executeMove(boardSetup, highlightedSquares, targetSquare, hotSquare) {
+		const originRank = hotSquare[1];
+		const originFile = hotSquare[0];
+		const valueOrigin = chessHelpers.getValueAtSquare(originRank, originFile, boardSetup);
+		if (!valueOrigin) return false;
+		if (valueOrigin.pieceColor!==this.state.playerTurn) return false; 
+		const targetRank = targetSquare[1];
+		const targetFile = targetSquare[0];
+		if (chessHelpers.getValueAtSquare(targetRank, targetFile, highlightedSquares)) {
 			/*access boardSetup, pull the item from the hotSquare, overwrite boardSetup at the keys*/
 			const copyBoardSetup = JSON.parse(JSON.stringify(boardSetup))
 			// move piece
-			if (!copyBoardSetup[rank]){
-				copyBoardSetup[rank]={}
+			if (!copyBoardSetup[targetRank]){
+				copyBoardSetup[targetRank]={}
 			}
-			
-			copyBoardSetup[hotSquare[1]][hotSquare[0]].hasMoved=true
-			copyBoardSetup[rank][file]=copyBoardSetup[hotSquare[1]][hotSquare[0]];
-			copyBoardSetup[hotSquare[1]][hotSquare[0]]=null;
-			const movingPiece = copyBoardSetup[rank][file].pieceType
+			copyBoardSetup[originRank][originFile].hasMoved=true
+			copyBoardSetup[targetRank][targetFile]=copyBoardSetup[originRank][originFile];
+			copyBoardSetup[originRank][originFile]=null;
+			const movingPiece = copyBoardSetup[targetRank][targetFile].pieceType
 			// if enPassant was available and movingPiece is
 			// a pawn that moved behind the pawn, then EP happened
 			if (movingPiece==='pawn' && this.state) {
-				if (this.state.enPassantAvailableAt[0]===file && this.state.enPassantAvailableAt[1]===hotSquare[1]){
-					copyBoardSetup[hotSquare[1]][[file]]=null;
+				if (this.state.enPassantAvailableAt[0]===targetFile && this.state.enPassantAvailableAt[1]===originRank){
+					copyBoardSetup[originRank][targetFile]=null;
 				}
 				// if the pawn just did a doublestep it is vulnerable to en Passant during the next move
-				if (Math.abs(rank-hotSquare[1])===2) {
-					this.setState({enPassantAvailableAt: [file,rank]})
+				if (Math.abs(targetRank-originRank)===2) {
+					this.setState({enPassantAvailableAt: [targetFile,targetRank]})
 				} else {
 					// clear en Passant eligibility
 					this.setState({enPassantAvailableAt: [null, null]})
@@ -237,9 +237,8 @@ class Board extends Component {
 			highlighted={this.getHighlightedStatus(this.props.highlightedSquares, rank, file)}
 			coordinate={[file,rank]}
 			symbol = {this.getPieceSymbol(piece)}
-			{...piece}
 			{...this.props}
-			{...this.getPieceAttributes(piece)}
+			// {...this.getPieceAttributes(piece)}
 		></Square>
 	}
 

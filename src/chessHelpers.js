@@ -67,81 +67,81 @@ export const defaultSetupWhite = {
 	// Hash by ranks white POV
 	// Nest by file
 	0: { 
-		0:{pieceColor: 'black', pieceType: 'rook', hasMoved:false},
-		1:{pieceColor: 'black', pieceType: 'knight'},
-		2:{pieceColor: 'black', pieceType: 'bishop'},
-		3:{pieceColor: 'black', pieceType: 'queen'},
-		4:{pieceColor: 'black', pieceType: 'king', hasMoved:false, inCheck: false},
-		5:{pieceColor: 'black', pieceType: 'bishop'},
-		6:{pieceColor: 'black', pieceType: 'knight'},
-		7:{pieceColor: 'black', pieceType: 'rook', hasMoved:false} 
+		0:{pieceColor: 'black', pieceType: 'rook', eligibleMoves: {}, hasMoved:false},
+		1:{pieceColor: 'black', pieceType: 'knight', eligibleMoves: {}},
+		2:{pieceColor: 'black', pieceType: 'bishop', eligibleMoves: {}},
+		3:{pieceColor: 'black', pieceType: 'queen', eligibleMoves: {}},
+		4:{pieceColor: 'black', pieceType: 'king', eligibleMoves: {}, hasMoved:false, inCheck: false},
+		5:{pieceColor: 'black', pieceType: 'bishop', eligibleMoves: {}},
+		6:{pieceColor: 'black', pieceType: 'knight', eligibleMoves: {}},
+		7:{pieceColor: 'black', pieceType: 'rook', eligibleMoves: {}, hasMoved:false} 
 	}, 1: { 
-		0:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false},
-		1:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false},
-		2:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false},
-		3:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false},
-		4:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false},
-		5:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false},
-		6:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false},
-		7:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false} 
+		0:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		1:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		2:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		3:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		4:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		5:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		6:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		7:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false} 
 	}, 6: { 
-		0:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false},
-		1:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false},
-		2:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false},
-		3:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false},
-		4:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false},
-		5:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false},
-		6:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false},
-		7:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false} 
+		0:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		1:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		2:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		3:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		4:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		5:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		6:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		7:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false} 
 	}, 7: { 
-		0:{pieceColor: 'white', pieceType: 'rook', hasMoved:false},
-		1:{pieceColor: 'white', pieceType: 'knight'},
-		2:{pieceColor: 'white', pieceType: 'bishop'},
-		3:{pieceColor: 'white', pieceType: 'queen'},
-		4:{pieceColor: 'white', pieceType: 'king', hasMoved:false, inCheck: false},
-		5:{pieceColor: 'white', pieceType: 'bishop'},
-		6:{pieceColor: 'white', pieceType: 'knight'},
-		7:{pieceColor: 'white', pieceType: 'rook', hasMoved:false} 
+		0:{pieceColor: 'white', pieceType: 'rook', eligibleMoves: {}, hasMoved:false},
+		1:{pieceColor: 'white', pieceType: 'knight', eligibleMoves: {}},
+		2:{pieceColor: 'white', pieceType: 'bishop', eligibleMoves: {}},
+		3:{pieceColor: 'white', pieceType: 'queen', eligibleMoves: {}},
+		4:{pieceColor: 'white', pieceType: 'king', eligibleMoves: {}, hasMoved:false, inCheck: false},
+		5:{pieceColor: 'white', pieceType: 'bishop', eligibleMoves: {}},
+		6:{pieceColor: 'white', pieceType: 'knight', eligibleMoves: {}},
+		7:{pieceColor: 'white', pieceType: 'rook', eligibleMoves: {}, hasMoved:false} 
 	}
 }
 export const defaultSetupBlack = {
 	// Hash by ranks black POV
 	0: { 
-		0:{pieceColor: 'white', pieceType: 'rook', hasMoved:false},
-		1:{pieceColor: 'white', pieceType: 'knight'},
-		2:{pieceColor: 'white', pieceType: 'bishop'},
-		3:{pieceColor: 'white', pieceType: 'queen'},
-		4:{pieceColor: 'white', pieceType: 'king', hasMoved:false, inCheck: false},
-		5:{pieceColor: 'white', pieceType: 'bishop'},
-		6:{pieceColor: 'white', pieceType: 'knight'},
-		7:{pieceColor: 'white', pieceType: 'rook', hasMoved:false} 
+		0:{pieceColor: 'white', pieceType: 'rook', eligibleMoves: {}, hasMoved:false},
+		1:{pieceColor: 'white', pieceType: 'knight', eligibleMoves: {}},
+		2:{pieceColor: 'white', pieceType: 'bishop', eligibleMoves: {}},
+		3:{pieceColor: 'white', pieceType: 'queen', eligibleMoves: {}},
+		4:{pieceColor: 'white', pieceType: 'king', eligibleMoves: {}, hasMoved:false, inCheck: false},
+		5:{pieceColor: 'white', pieceType: 'bishop', eligibleMoves: {}},
+		6:{pieceColor: 'white', pieceType: 'knight', eligibleMoves: {}},
+		7:{pieceColor: 'white', pieceType: 'rook', eligibleMoves: {}, hasMoved:false} 
 	}, 1: { 
-		0:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false},
-		1:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false},
-		2:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false},
-		3:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false},
-		4:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false},
-		5:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false},
-		6:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false},
-		7:{pieceColor: 'white', pieceType: 'pawn', hasMoved:false} 
+		0:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		1:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		2:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		3:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		4:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		5:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		6:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		7:{pieceColor: 'white', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false} 
 	}, 6: { 
-		0:{pieceColor: 'black', pieceType: 'rook', hasMoved:false},
-		1:{pieceColor: 'black', pieceType: 'knight'},
-		2:{pieceColor: 'black', pieceType: 'bishop'},
-		3:{pieceColor: 'black', pieceType: 'queen'},
-		4:{pieceColor: 'black', pieceType: 'king', hasMoved:false, inCheck: false},
-		5:{pieceColor: 'black', pieceType: 'bishop'},
-		6:{pieceColor: 'black', pieceType: 'knight'},
-		7:{pieceColor: 'black', pieceType: 'rook', hasMoved:false} 
+		0:{pieceColor: 'black', pieceType: 'rook', eligibleMoves: {}, hasMoved:false},
+		1:{pieceColor: 'black', pieceType: 'knight', eligibleMoves: {}},
+		2:{pieceColor: 'black', pieceType: 'bishop', eligibleMoves: {}},
+		3:{pieceColor: 'black', pieceType: 'queen', eligibleMoves: {}},
+		4:{pieceColor: 'black', pieceType: 'king', eligibleMoves: {}, hasMoved:false, inCheck: false},
+		5:{pieceColor: 'black', pieceType: 'bishop', eligibleMoves: {}},
+		6:{pieceColor: 'black', pieceType: 'knight', eligibleMoves: {}},
+		7:{pieceColor: 'black', pieceType: 'rook', eligibleMoves: {}, hasMoved:false} 
 	}, 7: { 
-		0:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false},
-		1:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false},
-		2:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false},
-		3:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false},
-		4:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false},
-		5:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false},
-		6:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false},
-		7:{pieceColor: 'black', pieceType: 'pawn', hasMoved:false} 
+		0:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		1:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		2:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		3:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		4:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		5:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		6:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false},
+		7:{pieceColor: 'black', pieceType: 'pawn', eligibleMoves: {}, hasMoved:false} 
 	}
 }
 
