@@ -14,7 +14,7 @@ class Chess extends Component {
 			hotSquare: null, /*coordinate of the square that's toggled on and prepped for a move*/
 			playerTurn: "white",
 			check: false,
-			enPassantAvailableFrom: {},
+			enPassantAvailableAt: [],
 			positionsInCheck: {},
 		}
 	}
@@ -127,13 +127,12 @@ class Chess extends Component {
 					const newY = negativeIfWhite*move[1]+rank;
 					return [newX, newY];
 				});
-
 			/*if boardSetup's captureCoordinates contain enemies, 
 			then add capture coordinates*/
-			console.log(captureCoordinates)
 			const eligibleCapture = captureCoordinates.filter((coord) => {
 				const colorAndPiece = chessHelpers.getValueAtSquare(coord[1], coord[0], piece.boardSetup)
-				return colorAndPiece && colorAndPiece[0]!==piece.playerTurn;
+				console.log(colorAndPiece)
+				return colorAndPiece && colorAndPiece.pieceColor!==piece.playerTurn;
 			})
 			validMoves.push(...eligibleCapture);
 			if (!piece.hasMoved) {
@@ -149,7 +148,18 @@ class Chess extends Component {
 					validMoves.push([file, rank+negativeIfWhite*2])
 				}
 			}
+			if (this.state.enPassantAvailableAt) {
+				console.log('this.state.enPassantAvailableAt'+this.state.enPassantAvailableAt)
+				const vulnerablePawnPosition = this.state.enPassantAvailableAt
+				const enPassantMoves = this
+					.getEnPassantEligibility(vulnerablePawnPosition[1], vulnerablePawnPosition[0])
+				console.log(chessHelpers.getValueAtSquare(rank,file,enPassantMoves))
+				if (chessHelpers.getValueAtSquare(rank,file,enPassantMoves)) {
+					validMoves.push([vulnerablePawnPosition[0],vulnerablePawnPosition[1]+negativeIfWhite])
+				}
+			}
 		}
+
 		return validMoves;
 	}
 
@@ -163,16 +173,26 @@ class Chess extends Component {
 			if (!copyBoardSetup[rank]){
 				copyBoardSetup[rank]={}
 			}
+			
 			copyBoardSetup[hotSquare[1]][hotSquare[0]].hasMoved=true
 			copyBoardSetup[rank][file]=copyBoardSetup[hotSquare[1]][hotSquare[0]];
 			copyBoardSetup[hotSquare[1]][hotSquare[0]]=null;
-			// clear en Passant eligibility
-			this.setState({enPassantAvailableFrom: {}})
-			console.log(rank-hotSquare[1])
-			if (copyBoardSetup[rank][file].pieceType==='pawn' && Math.abs(rank-hotSquare[1])===2){
-				const enPassantMoves = this.getEnPassantEligibility(rank, file)
-				this.setState({enPassantAvailableFrom: {enPassantMoves}})
-				console.log(enPassantMoves)
+			const movingPiece = copyBoardSetup[rank][file].pieceType
+			// if enPassant was available and movingPiece is
+			// a pawn that moved behind the pawn, then EP happened
+			if (movingPiece==='pawn' && this.state) {
+				if (this.state.enPassantAvailableAt[0]===file && this.state.enPassantAvailableAt[1]===hotSquare[1]){
+					copyBoardSetup[hotSquare[1]][[file]]=null;
+				}
+				// if the pawn just did a doublestep it is vulnerable to en Passant during the next move
+				if (Math.abs(rank-hotSquare[1])===2) {
+					this.setState({enPassantAvailableAt: [file,rank]})
+				} else {
+					// clear en Passant eligibility
+					this.setState({enPassantAvailableAt: [null, null]})
+				}
+			} else {
+				this.setState({enPassantAvailableAt: [null, null]})
 			}
 			this.setState({
 				boardSetup: copyBoardSetup,
