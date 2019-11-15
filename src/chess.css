@@ -17,8 +17,8 @@ ol, ul {
   margin-bottom: 10px;
 }
 
-.square {
-  background: #fff;
+
+button, .square {
   border: 1px solid #999;
   float: left;
   font-size: 8vw;
@@ -31,6 +31,17 @@ ol, ul {
   width: 10vw;
 }
 
+.black{
+  background: #ddd;
+}
+.white{
+  background: #fff;
+}
+.highlighted {
+  background-color: rgba(0,50,150,0.3)
+}
+
+
 .square:focus {
   outline: none;
 }
@@ -40,13 +51,6 @@ ol, ul {
 }
 
 
-.square-black{
-  background: #ddd;
-}
-
-.square-white(
-  background: #fff;
-)
 .game {
   display: flex;
   flex-direction: row;
