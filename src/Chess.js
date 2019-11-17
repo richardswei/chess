@@ -159,6 +159,7 @@ class Chess extends Component {
       /*CHECK FOR EN PASSANT*/
       if (stateObj.enPassantAvailableAt) {
         const vulnerablePawnPosition = stateObj.enPassantAvailableAt
+        console.log(vulnerablePawnPosition)
         const enPassantMoves = this
           .getEnPassantThreats(vulnerablePawnPosition[1], vulnerablePawnPosition[0])
         if (chessHelpers.getValueAtSquare(rank,file,enPassantMoves)) {
@@ -216,6 +217,7 @@ class Chess extends Component {
   }
 
   updateBoardWithMoves(boardSetup, newStateObject={}) {
+    console.log(newStateObject)
     for (var rank=0; rank<8; rank++){
       for (var file=0; file<8; file++){
         try {
@@ -234,7 +236,7 @@ class Chess extends Component {
   }
 
   getEnPassantThreats(rank, file) {
-    if (!rank || !file) return {};
+    if (rank===null || file===null) return {};
     const eligible = [];
     if (file-1>=0) {
       eligible.push([file-1, rank]);
