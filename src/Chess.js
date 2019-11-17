@@ -190,14 +190,19 @@ class Chess extends Component {
       copyBoardSetup[targetRank][targetFile]=copyBoardSetup[originRank][originFile];
       copyBoardSetup[originRank][originFile]=null;
       const movingPiece = copyBoardSetup[targetRank][targetFile].pieceType
-      // if enPassant was available and movingPiece is
-      // a pawn that moved behind the pawn, then EP happened
       const newStateObject = {};
       if (movingPiece==='pawn') {
+        // if movingPiece is a pawn that moved behind the enemy pawn, 
+        // then EP happened
         if (this.state.enPassantAvailableAt[0]===targetFile && 
           this.state.enPassantAvailableAt[1]===originRank){
             copyBoardSetup[originRank][targetFile]=null;
         }
+        if (targetRank===0 || targetRank===7) {
+          // if a pawn reaches the last rank on either side, promote
+          copyBoardSetup[targetRank][targetFile].pieceType = 'queen';
+        }
+
       }
       if (movingPiece==='pawn' && Math.abs(targetRank-originRank)===2) {
         newStateObject.enPassantAvailableAt = targetSquare;
