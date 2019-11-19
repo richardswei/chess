@@ -110,9 +110,11 @@ class Chess extends Component {
       }
       let boardSetupUpdated = chessHelpers.updateBoardWithMoves(copyBoardSetup, newStateObject);      
       const playerIsChecked = chessHelpers.searchForChecks(this.state.playerTurn, playerKingPosition, copyBoardSetup);
-      console.log(playerIsChecked)
-      if (playerIsChecked) {
-        alert('cannot move into check')
+      if (this.state.check && playerIsChecked) {
+        alert('You are checked!')
+        return;
+      } else if (playerIsChecked) {
+        alert('You cannot move into check!')
         return;
       };
       const threatenedSpaces = chessHelpers.getThreatsAgainstPlayer(boardSetupUpdated, opponent);
@@ -122,7 +124,7 @@ class Chess extends Component {
       const checkedKingExists = chessHelpers.searchForChecks(opponent, opponentKingPosition, boardSetupUpdated);
       if (checkedKingExists) {
         newStateObject.check = true;
-        alert('check')
+        alert(`${opponent} is checked!`)
       } else {
         newStateObject.check = false;
       }
