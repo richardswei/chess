@@ -85,8 +85,6 @@ export function updateOpponentKingMoves(boardSetup, threatenedSpaces, color) {
       let piece = getValueAtSquare(rank, file, boardSetup);
       if (!piece) continue;
       if (color===piece.pieceColor && piece.pieceType ==='king'){
-				console.log(threatenedSpaces)
-				console.log(boardSetup[rank][file].eligibleMovesList)
         boardSetup[rank][file].eligibleMovesList = piece.eligibleMovesList.filter((move) => {
           return getValueAtSquare(move[1], move[0], threatenedSpaces)  ? false : true
         });
@@ -205,10 +203,13 @@ export function extendForUnlimitedRange(piece, currentPosition, deltaMovement, b
 	return extendForUnlimitedRange(piece, newCoord, deltaMovement, boardSetup, eligibleMovesList)
 }
 
-export function searchForChecks(kingColor, kingPosition, boardSetup){
+export function searchForChecks(kingColor, kingPosition, boardSetup) {
 	// function checks if the current king is checked
+	// console.log([kingColor, kingPosition, boardSetup])
 	const threatenedCoordinates = getThreatsAgainstPlayer(boardSetup, kingColor)
-	return threatenedCoordinates[kingPosition[1]][kingPosition[0]] ? true : false
+	const kingThreatened = getValueAtSquare(kingPosition[1], kingPosition[0], threatenedCoordinates)
+	// console.log(kingThreatened);
+	return kingThreatened ? true : false
 }
 
 

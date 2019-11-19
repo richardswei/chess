@@ -38,7 +38,6 @@ class Chess extends Component {
   }
 
   handleSquareClick(props) {
-    console.log(this.state)
     if (!this.state.hotSquare){
       // if a square has not been focused, focus it 
       const square = chessHelpers.getValueAtSquare(props.coordinate[1], props.coordinate[0], this.state.boardSetup);
@@ -66,6 +65,9 @@ class Chess extends Component {
     const targetRank = targetSquare[1];
     const targetFile = targetSquare[0];
     const opponent = this.state.playerTurn==="white"? "black" : "white";
+    const opponentKingPosition = this.state[opponent+"KingPosition"];
+    const playerKingPosition = this.state[this.state.playerTurn+"KingPosition"];
+
     if (chessHelpers.getValueAtSquare(targetRank, targetFile, highlightedSquares)) {
       /*access boardSetup, pull the item from the hotSquare, overwrite boardSetup at the keys*/
       let copyBoardSetup = JSON.parse(JSON.stringify(boardSetup))
@@ -73,14 +75,13 @@ class Chess extends Component {
       if (!copyBoardSetup[targetRank]){
         copyBoardSetup[targetRank]={}
       }
-
-      // searchForCheck
-
-
       // move piece from origin to target. set the hasMoved property to true
       copyBoardSetup[originRank][originFile].hasMoved=true
       copyBoardSetup[targetRank][targetFile]=copyBoardSetup[originRank][originFile];
       copyBoardSetup[originRank][originFile]=null;
+
+      // make sure player did not move into check
+
       const movingPiece = copyBoardSetup[targetRank][targetFile]
       let newStateObject = {};
       if (movingPiece.pieceColor==='pawn') {
@@ -101,16 +102,32 @@ class Chess extends Component {
         newStateObject.enPassantAvailableAt = [null, null];
       }
       if (movingPiece.pieceType==='king') {
-        if(movingPiece.pieceColor==='black') {
+        if (movingPiece.pieceColor==='black') {
           newStateObject.blackKingPosition = [targetFile, targetRank];
         } else {
-          console.log('thishappened')
           newStateObject.whiteKingPosition = [targetFile, targetRank];
         }
       }
       let boardSetupUpdated = chessHelpers.updateBoardWithMoves(copyBoardSetup, newStateObject);      
+      const playerIsChecked = chessHelpers.searchForChecks(this.state.playerTurn, playerKingPosition, copyBoardSetup);
+      console.log(playerIsChecked)
+      if (playerIsChecked) {
+        alert('cannot move into check')
+        return;
+      };
       const threatenedSpaces = chessHelpers.getThreatsAgainstPlayer(boardSetupUpdated, opponent);
       boardSetupUpdated = chessHelpers.updateOpponentKingMoves(boardSetupUpdated, threatenedSpaces, opponent)
+
+      // see if a check has occurred  
+      const checkedKingExists = chessHelpers.searchForChecks(opponent, opponentKingPosition, boardSetupUpdated);
+      if (checkedKingExists) {
+        newStateObject.check = true;
+        alert('check')
+      } else {
+        newStateObject.check = false;
+      }
+
+
       // saveAllPossibleMoves
       this.setState({
         boardSetup: boardSetupUpdated,
