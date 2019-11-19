@@ -214,8 +214,16 @@ export function searchForChecks(kingColor, kingPosition, boardSetup) {
 }
 
 
-export function eligibleMovesByPlayer(color, kingPosition, boardSetup, newStateObject) {
-	return
+export function eligibleMovesExist(color, kingPosition, boardSetup, newStateObject) {
+	/*
+	return true if even a single legal move exists (for checkmate and stalemate)
+	loop through each square
+	find eligible moves
+	for each eligible move, create a copy of the board, and look for a threat to king
+	if no threat, get out, return true
+	else continue
+	if loop through all, return false
+	*/
 }
 
 
