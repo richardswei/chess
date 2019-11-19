@@ -8,14 +8,17 @@ class Chess extends Component {
     this.handleNewGame = this.handleNewGame.bind(this);
     this.handleLoadGame = this.handleLoadGame.bind(this);
     this.handleSquareClick = this.handleSquareClick.bind(this);
+    const topPlayerIsBlack = true;
     this.state = {
-      boardSetup: chessHelpers.defaultSetupWhite, /*an array of coordinate-piece objects*/
+      boardSetup: topPlayerIsBlack ? chessHelpers.defaultSetupWhite : chessHelpers.defaultSetupBlack, /*an array of coordinate-piece objects*/
       highlightedSquares: {}, 
       hotSquare: null, /*coordinate of the square that's toggled on and prepped for a move*/
       playerTurn: "white",
       check: false,
       enPassantAvailableAt: [null, null],
       threatenedSpaces: [],
+      whiteKingPosition: topPlayerIsBlack ? [4,7] : [4,0],
+      blackKingPosition: topPlayerIsBlack ? [4,0] : [4,7],
     }
   }
 
@@ -35,6 +38,7 @@ class Chess extends Component {
   }
 
   handleSquareClick(props) {
+    console.log(this.state)
     if (!this.state.hotSquare){
       // if a square has not been focused, focus it 
       const square = chessHelpers.getValueAtSquare(props.coordinate[1], props.coordinate[0], this.state.boardSetup);
@@ -77,9 +81,9 @@ class Chess extends Component {
       copyBoardSetup[originRank][originFile].hasMoved=true
       copyBoardSetup[targetRank][targetFile]=copyBoardSetup[originRank][originFile];
       copyBoardSetup[originRank][originFile]=null;
-      const movingPiece = copyBoardSetup[targetRank][targetFile].pieceType
+      const movingPiece = copyBoardSetup[targetRank][targetFile]
       let newStateObject = {};
-      if (movingPiece==='pawn') {
+      if (movingPiece.pieceColor==='pawn') {
         // if movingPiece is a pawn that moved behind the enemy pawn, 
         // then EP happened
         if (this.state.enPassantAvailableAt[0]===targetFile && 
@@ -91,10 +95,18 @@ class Chess extends Component {
           copyBoardSetup[targetRank][targetFile].pieceType = 'queen';
         }
       }
-      if (movingPiece==='pawn' && Math.abs(targetRank-originRank)===2) {
+      if (movingPiece.pieceColor==='pawn' && Math.abs(targetRank-originRank)===2) {
         newStateObject.enPassantAvailableAt = targetSquare;
       } else {
         newStateObject.enPassantAvailableAt = [null, null];
+      }
+      if (movingPiece.pieceType==='king') {
+        if(movingPiece.pieceColor==='black') {
+          newStateObject.blackKingPosition = [targetFile, targetRank];
+        } else {
+          console.log('thishappened')
+          newStateObject.whiteKingPosition = [targetFile, targetRank];
+        }
       }
       let boardSetupUpdated = chessHelpers.updateBoardWithMoves(copyBoardSetup, newStateObject);      
       const threatenedSpaces = chessHelpers.getThreatsAgainstPlayer(boardSetupUpdated, opponent);

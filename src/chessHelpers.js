@@ -207,7 +207,7 @@ export function extendForUnlimitedRange(piece, currentPosition, deltaMovement, b
 
 export function searchForChecks(kingColor, kingPosition, boardSetup){
 	// function checks if the current king is checked
-	// getThreatsAgainstPlayer(boardSetup, color)
+	getThreatsAgainstPlayer(boardSetup, kingColor)
 }
 
 
