@@ -97,7 +97,7 @@ export function updateOpponentKingMoves(boardSetup, threatenedSpaces, color) {
 }
 
 export function getThreatsAgainstPlayer(boardSetup, color) {
-  const negativeIfWhite = color==="whit}e" ? -1 : 1;
+  const negativeIfWhite = color==="white" ? -1 : 1;
   var threatenedSpaces = [];
   for (var rank=0; rank<8; rank++){
     for (var file=0; file<8; file++){
@@ -108,6 +108,8 @@ export function getThreatsAgainstPlayer(boardSetup, color) {
           threatenedSpaces= threatenedSpaces
             .concat([[file+1, rank+negativeIfWhite],[file-1, rank+negativeIfWhite]])
         } else {
+        	console.log(piece.pieceType)
+        	console.log(piece.eligibleMovesList)
           threatenedSpaces = threatenedSpaces.concat(piece.eligibleMovesList)
         }
       } catch {
@@ -205,11 +207,15 @@ export function extendForUnlimitedRange(piece, currentPosition, deltaMovement, b
 
 export function searchForChecks(kingColor, kingPosition, boardSetup) {
 	// function checks if the current king is checked
-	// console.log([kingColor, kingPosition, boardSetup])
 	const threatenedCoordinates = getThreatsAgainstPlayer(boardSetup, kingColor)
+	console.log(threatenedCoordinates)
 	const kingThreatened = getValueAtSquare(kingPosition[1], kingPosition[0], threatenedCoordinates)
-	// console.log(kingThreatened);
 	return kingThreatened ? true : false
+}
+
+
+export function eligibleMovesByPlayer(color, kingPosition, boardSetup, newStateObject) {
+	return
 }
 
 
