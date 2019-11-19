@@ -2,7 +2,9 @@ body {
   /*font: 14px "Century Gothic", Futura, sans-serif;*/
   margin: 5vmin;
 }
-
+h1 {
+  width: 100vmin
+}
 ol, ul {
   /*padding-left: 30px;*/
 }
@@ -41,15 +43,13 @@ button, .square {
   background-color: rgba(0,50,150,0.3)
 }
 
-
 .square:focus {
-  outline: none;
+  /*outline: none;*/
 }
 
 .kbd-navigation .square:focus {
   background: #ddd;
 }
-
 
 .game {
   display: flex;
