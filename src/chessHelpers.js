@@ -177,6 +177,7 @@ export function getEligibleStandardMoves(squareRank, squareFile, boardSetup) {
     const movesUnlimitedRange = eligibleDeltas.map((deltaCoord)=>{
       return extendForUnlimitedRange(currentPiece, currentPosition, deltaCoord, boardSetup)
     });
+    // if (currentPiece.pieceType === 'queen' && currentPiece.pieceColor==='black'){console.log(movesUnlimitedRange.flat())}
     return movesUnlimitedRange.flat();
   }
 }
@@ -230,9 +231,10 @@ export function eligibleMovesExist(color, boardSetup, stateObj) {
 			const piece = getValueAtSquare(rank, file, boardSetup);
 			if (!piece) {continue;}
 			if (piece.pieceColor===color) {
-				for (const coordinate in piece.eligibleMovesList) {
+				for (const coordinate of piece.eligibleMovesList) {
 					const targetFile = coordinate[0];
 					const targetRank = coordinate[1];
+					if (rank===6) {console.log(piece)}
 		      let copyBoardSetup = JSON.parse(JSON.stringify(boardSetup));
 		      if (!copyBoardSetup[targetRank]){
 		        copyBoardSetup[targetRank]={}
@@ -247,11 +249,11 @@ export function eligibleMovesExist(color, boardSetup, stateObj) {
 					const originSquare = [rank, file];
 
 		      copyBoardSetup = manageSpecialMoves(movingPiece, originSquare, coordinate, copyBoardSetup, newStateObject)
+					if (targetFile===6) {console.log(copyBoardSetup)}
+
 		      newStateObject = manageEnPassantState(movingPiece, originSquare, coordinate, newStateObject);
 		      newStateObject = manageKingMove(movingPiece, coordinate, newStateObject);
-
 		      let boardSetupUpdated = updateBoardWithMoves(copyBoardSetup, newStateObject);      
-
 		      const checkStillExists = searchForChecks(color, newStateObject[color+'KingPosition'], boardSetupUpdated);
 		      if (!checkStillExists) {
 		      	return true; 
