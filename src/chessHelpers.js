@@ -11,12 +11,12 @@ export function groupByRank(moveArray) {
   }
 
 export function getValueAtSquare(rank, file, board) {
-	try {
-		return board[rank][file]
-	} 
-	catch(error) {
-		return null;
-	}
+  try {
+    return board[rank][file]
+  } 
+  catch(error) {
+    return null;
+  }
 }
 
 export function getEnPassantThreats(rank, file) {
@@ -31,9 +31,9 @@ export function getEnPassantThreats(rank, file) {
     return groupByRank(eligible)
   }
 
-// export function getKingSpecialMoves() {
+export function getKingSpecialMoves() {
 
-// }
+}
 
 export function getPawnSpecialMoves(rank, file, boardSetup, stateObj) {
   // no need to check for offboard here; 
@@ -107,7 +107,7 @@ export function getThreatsAgainstPlayer(boardSetup, color) {
         const piece = boardSetup[rank][file];
         if (piece.pieceColor===color) continue;
         if (piece.pieceType==='pawn' ) {
-  				const negativeIfWhite = piece.pieceColor==="white" ? -1 : 1;
+          const negativeIfWhite = piece.pieceColor==="white" ? -1 : 1;
           threatenedSpaces=threatenedSpaces
             .concat([[file+1, rank+negativeIfWhite],[file-1, rank+negativeIfWhite]])
         } else {
@@ -182,84 +182,84 @@ export function getEligibleStandardMoves(squareRank, squareFile, boardSetup) {
 }
 
 export function extendForUnlimitedRange(piece, currentPosition, deltaMovement, boardSetup, eligibleMovesList=[]) {
-	const dx=deltaMovement[0];
-	const dy=deltaMovement[1];
-	const newCoord = [currentPosition[0]+dx, currentPosition[1]+dy]
-	// check if offBoard
+  const dx=deltaMovement[0];
+  const dy=deltaMovement[1];
+  const newCoord = [currentPosition[0]+dx, currentPosition[1]+dy]
+  // check if offBoard
 
-	const coordinateIsOffBoard = newCoord[0]<0 || newCoord[0]>7 || newCoord[1]<0 || newCoord[1]>7
-	if (coordinateIsOffBoard) {
-	  return eligibleMovesList
-	}
-	// see if occupant exists in space 
-	const occupant = getValueAtSquare(newCoord[1], newCoord[0], boardSetup);
-	const occupantColor = occupant ? occupant.pieceColor : null;
-	if (occupantColor===piece.pieceColor) {
-	  return eligibleMovesList;
-	} else if (occupantColor && occupantColor!==piece.pieceColor) {
-	  eligibleMovesList.push(newCoord);
-	  return eligibleMovesList;
-	}
-	// if we get to this point we have an eligible coord
-	// push and recurse
-	eligibleMovesList.push(newCoord);
-	return extendForUnlimitedRange(piece, newCoord, deltaMovement, boardSetup, eligibleMovesList)
+  const coordinateIsOffBoard = newCoord[0]<0 || newCoord[0]>7 || newCoord[1]<0 || newCoord[1]>7
+  if (coordinateIsOffBoard) {
+    return eligibleMovesList
+  }
+  // see if occupant exists in space 
+  const occupant = getValueAtSquare(newCoord[1], newCoord[0], boardSetup);
+  const occupantColor = occupant ? occupant.pieceColor : null;
+  if (occupantColor===piece.pieceColor) {
+    return eligibleMovesList;
+  } else if (occupantColor && occupantColor!==piece.pieceColor) {
+    eligibleMovesList.push(newCoord);
+    return eligibleMovesList;
+  }
+  // if we get to this point we have an eligible coord
+  // push and recurse
+  eligibleMovesList.push(newCoord);
+  return extendForUnlimitedRange(piece, newCoord, deltaMovement, boardSetup, eligibleMovesList)
 }
 
 export function searchForChecks(kingColor, kingPosition, boardSetup) {
-	// function checks if the current king is checked
-	const threatenedCoordinates = getThreatsAgainstPlayer(boardSetup, kingColor)
-	const kingThreatened = getValueAtSquare(kingPosition[1], kingPosition[0], threatenedCoordinates)
-	return kingThreatened ? true : false
+  // function checks if the current king is checked
+  const threatenedCoordinates = getThreatsAgainstPlayer(boardSetup, kingColor)
+  const kingThreatened = getValueAtSquare(kingPosition[1], kingPosition[0], threatenedCoordinates)
+  return kingThreatened ? true : false
 }
 
 
 export function eligibleMovesExist(color, boardSetup, stateObj) {
-	/*
-	return true if even a single legal move exists (for checkmate and stalemate)
-	loop through each square
-	find eligible moves
-	for each eligible move, create a copy of the board, make the move, and look for a threat to king
-	if no threat, get out, return true
-	else continue
-	if loop through all, return false
-	*/
+  /*
+  return true if even a single legal move exists (for checkmate and stalemate)
+  loop through each square
+  find eligible moves
+  for each eligible move, create a copy of the board, make the move, and look for a threat to king
+  if no threat, get out, return true
+  else continue
+  if loop through all, return false
+  */
 
-	for(let rank=0; rank<8; rank++) {
-		for(let file=0; file<8; file++) {
-			const piece = getValueAtSquare(rank, file, boardSetup);
-			if (!piece) {continue;}
-			if (piece.pieceColor===color) {
-				for (const coordinate of piece.eligibleMovesList) {
-					const targetFile = coordinate[0];
-					const targetRank = coordinate[1];
-		      let copyBoardSetup = JSON.parse(JSON.stringify(boardSetup));
-		      if (!copyBoardSetup[targetRank]){
-		        copyBoardSetup[targetRank]={}
-		      }
-		      copyBoardSetup[targetRank][targetFile]=copyBoardSetup[rank][file];
-		      copyBoardSetup[rank][file]=null;
-		      let newStateObject = {};
-		      newStateObject.enPassantAvailableAt = stateObj.enPassantAvailableAt;
-		      newStateObject.whiteKingPosition = stateObj.whiteKingPosition;
-		      newStateObject.blackKingPosition = stateObj.blackKingPosition;
-		      const movingPiece = copyBoardSetup[targetRank][targetFile];
-					const originSquare = [rank, file];
+  for(let rank=0; rank<8; rank++) {
+    for(let file=0; file<8; file++) {
+      const piece = getValueAtSquare(rank, file, boardSetup);
+      if (!piece) {continue;}
+      if (piece.pieceColor===color) {
+        for (const coordinate of piece.eligibleMovesList) {
+          const targetFile = coordinate[0];
+          const targetRank = coordinate[1];
+          let copyBoardSetup = JSON.parse(JSON.stringify(boardSetup));
+          if (!copyBoardSetup[targetRank]){
+            copyBoardSetup[targetRank]={}
+          }
+          copyBoardSetup[targetRank][targetFile]=copyBoardSetup[rank][file];
+          copyBoardSetup[rank][file]=null;
+          let newStateObject = {};
+          newStateObject.enPassantAvailableAt = stateObj.enPassantAvailableAt;
+          newStateObject.whiteKingPosition = stateObj.whiteKingPosition;
+          newStateObject.blackKingPosition = stateObj.blackKingPosition;
+          const movingPiece = copyBoardSetup[targetRank][targetFile];
+          const originSquare = [rank, file];
 
-		      copyBoardSetup = manageSpecialMoves(movingPiece, originSquare, coordinate, copyBoardSetup, newStateObject)
+          copyBoardSetup = manageSpecialMoves(movingPiece, originSquare, coordinate, copyBoardSetup, newStateObject)
 
-		      newStateObject = manageEnPassantState(movingPiece, originSquare, coordinate, newStateObject);
-		      newStateObject = manageKingMove(movingPiece, coordinate, newStateObject);
-		      let boardSetupUpdated = updateBoardWithMoves(copyBoardSetup, newStateObject);      
-		      const checkStillExists = searchForChecks(color, newStateObject[color+'KingPosition'], boardSetupUpdated);
-		      if (!checkStillExists) {
-		      	return true; 
-		     	}
-				}
-			}
-		}
-	}
-	return false
+          newStateObject = manageEnPassantState(movingPiece, originSquare, coordinate, newStateObject);
+          newStateObject = manageKingMove(movingPiece, coordinate, newStateObject);
+          let boardSetupUpdated = updateBoardWithMoves(copyBoardSetup, newStateObject);      
+          const checkStillExists = searchForChecks(color, newStateObject[color+'KingPosition'], boardSetupUpdated);
+          if (!checkStillExists) {
+            return true; 
+          }
+        }
+      }
+    }
+  }
+  return false
 }
 
 export function manageEnPassant(movingPiece, origin, target, boardSetup, newStateObject) {
@@ -275,33 +275,33 @@ export function manageEnPassant(movingPiece, origin, target, boardSetup, newStat
 
 
 export function managePromotion(movingPiece, origin, target, boardSetup, newStateObject) {
-	if (movingPiece.pieceType==='pawn') {
-	  if (target[1]===0 || target[1]===7) {
-	    // if a pawn reaches the last rank on either side, promote
-	    boardSetup[target[1]][target[0]].pieceType = 'queen';
-	  }
-	}
-	return boardSetup
+  if (movingPiece.pieceType==='pawn') {
+    if (target[1]===0 || target[1]===7) {
+      // if a pawn reaches the last rank on either side, promote
+      boardSetup[target[1]][target[0]].pieceType = 'queen';
+    }
+  }
+  return boardSetup
 }
 
 export function manageKingMove(movingPiece, target, newStateObject) {
-	if (movingPiece.pieceType==='king') {
-	  if (movingPiece.pieceColor==='black') {
-	    newStateObject.blackKingPosition = [target[0], target[1]];
-	  } else {
-	    newStateObject.whiteKingPosition = [target[0], target[1]];
-	  }
-	}
-	return newStateObject;
+  if (movingPiece.pieceType==='king') {
+    if (movingPiece.pieceColor==='black') {
+      newStateObject.blackKingPosition = [target[0], target[1]];
+    } else {
+      newStateObject.whiteKingPosition = [target[0], target[1]];
+    }
+  }
+  return newStateObject;
 }
 
 export function manageSpecialMoves(movingPiece, origin, target, boardSetup, newStateObject) {
-	const updateBoard1 = manageEnPassant(movingPiece, origin, target, boardSetup, newStateObject);
-	return managePromotion(movingPiece, origin, target, updateBoard1, newStateObject);
+  const updateBoard1 = manageEnPassant(movingPiece, origin, target, boardSetup, newStateObject);
+  return managePromotion(movingPiece, origin, target, updateBoard1, newStateObject);
 }
 
 export function manageEnPassantState(movingPiece, origin, target, newStateObject) {
-	if (movingPiece.pieceType==='pawn' && Math.abs(target[1]-origin[1])===2) {
+  if (movingPiece.pieceType==='pawn' && Math.abs(target[1]-origin[1])===2) {
     newStateObject.enPassantAvailableAt = target;
   } else {
     newStateObject.enPassantAvailableAt = [null, null];
@@ -310,154 +310,154 @@ export function manageEnPassantState(movingPiece, origin, target, newStateObject
 }
 
 /*
-	CONSTANTS
+  CONSTANTS
 */
 
 export const chess_unicode = {
-	white: {king: '\u2654',
-		queen: '\u2655',
-		rook: '\u2656',
-		bishop: '\u2657',
-		knight: '\u2658',
-		pawn: '\u2659'
-	},
-	black: {king: '\u265A',
-		queen: '\u265B',
-		rook: '\u265C',
-		bishop: '\u265D',
-		knight: '\u265E',
-		pawn: '\u265F'
-	}
+  white: {king: '\u2654',
+    queen: '\u2655',
+    rook: '\u2656',
+    bishop: '\u2657',
+    knight: '\u2658',
+    pawn: '\u2659'
+  },
+  black: {king: '\u265A',
+    queen: '\u265B',
+    rook: '\u265C',
+    bishop: '\u265D',
+    knight: '\u265E',
+    pawn: '\u265F'
+  }
 }
 
 export const pieceAttributes = {
-	// moves in form of [dx, dy]
-	king: {
-		unlimitedRange: false,
-		unitMoves: [[0,1],[0,-1],[-1,0],[1,0],[1,1],[-1,-1],[-1,1],[1,-1]],
-	},
-	queen: {
-		unlimitedRange: true,
-		unitMoves: [[0,1],[0,-1],[-1,0],[1,0],[1,1],[-1,-1],[-1,1],[1,-1]],
-	},
-	rook: {
-		unlimitedRange: true,
-		unitMoves: [[0,1],[0,-1],[-1,0],[1,0]],
-	},
-	bishop: {
-		unlimitedRange: true,
-		unitMoves: [[1,1],[-1,-1],[-1,1],[1,-1]],
-	},
-	knight: {
-		unlimitedRange: false,
-		unitMoves: [[1,2],[-1,-2],[1,-2],[-1,2],[2,1],[-2,-1],[2,-1],[-2,1]],
-	},
-	pawn: {
-		unlimitedRange: false,
-		unitMoves: [[0,1]],
-	}
+  // moves in form of [dx, dy]
+  king: {
+    unlimitedRange: false,
+    unitMoves: [[0,1],[0,-1],[-1,0],[1,0],[1,1],[-1,-1],[-1,1],[1,-1]],
+  },
+  queen: {
+    unlimitedRange: true,
+    unitMoves: [[0,1],[0,-1],[-1,0],[1,0],[1,1],[-1,-1],[-1,1],[1,-1]],
+  },
+  rook: {
+    unlimitedRange: true,
+    unitMoves: [[0,1],[0,-1],[-1,0],[1,0]],
+  },
+  bishop: {
+    unlimitedRange: true,
+    unitMoves: [[1,1],[-1,-1],[-1,1],[1,-1]],
+  },
+  knight: {
+    unlimitedRange: false,
+    unitMoves: [[1,2],[-1,-2],[1,-2],[-1,2],[2,1],[-2,-1],[2,-1],[-2,1]],
+  },
+  pawn: {
+    unlimitedRange: false,
+    unitMoves: [[0,1]],
+  }
 }
 
 export const pieceAttributesByType = {
-	'king': pieceAttributes.king,
-	'queen': pieceAttributes.queen,
-	'rook': pieceAttributes.rook,
-	'bishop': pieceAttributes.bishop,
-	'knight': pieceAttributes.knight,
-	'pawn': pieceAttributes.pawn,
+  'king': pieceAttributes.king,
+  'queen': pieceAttributes.queen,
+  'rook': pieceAttributes.rook,
+  'bishop': pieceAttributes.bishop,
+  'knight': pieceAttributes.knight,
+  'pawn': pieceAttributes.pawn,
 }
 
 export const defaultSetupWhite = {
-	// Hash by ranks white POV
-	// Nest by file
-	0: { 
-		0:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
-		1:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: []},
-		2:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: []},
-		3:{pieceColor: 'black', pieceType: 'queen', eligibleMovesList: []},
-		4:{pieceColor: 'black', pieceType: 'king', eligibleMovesList: [], hasMoved:false, inCheck: false},
-		5:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: []},
-		6:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: []},
-		7:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
-	}, 1: { 
-		0:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		1:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		2:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		3:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		4:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		5:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		6:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		7:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
-	}, 6: { 
-		0:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		1:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		2:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		3:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		4:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		5:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		6:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		7:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
-	}, 7: { 
-		0:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
-		1:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: []},
-		2:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: []},
-		3:{pieceColor: 'white', pieceType: 'queen', eligibleMovesList: []},
-		4:{pieceColor: 'white', pieceType: 'king', eligibleMovesList: [], hasMoved:false, inCheck: false},
-		5:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: []},
-		6:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: []},
-		7:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
-	}
+  // Hash by ranks white POV
+  // Nest by file
+  0: { 
+    0:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
+    1:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: []},
+    2:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: []},
+    3:{pieceColor: 'black', pieceType: 'queen', eligibleMovesList: []},
+    4:{pieceColor: 'black', pieceType: 'king', eligibleMovesList: [], hasMoved:false, inCheck: false},
+    5:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: []},
+    6:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: []},
+    7:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
+  }, 1: { 
+    0:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    1:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    2:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    3:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    4:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    5:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    6:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    7:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
+  }, 6: { 
+    0:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    1:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    2:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    3:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    4:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    5:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    6:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    7:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
+  }, 7: { 
+    0:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
+    1:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: []},
+    2:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: []},
+    3:{pieceColor: 'white', pieceType: 'queen', eligibleMovesList: []},
+    4:{pieceColor: 'white', pieceType: 'king', eligibleMovesList: [], hasMoved:false, inCheck: false},
+    5:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: []},
+    6:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: []},
+    7:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
+  }
 }
 export const defaultSetupBlack = {
-	// Hash by ranks black POV
-	0: { 
-		0:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
-		1:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: []},
-		2:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: []},
-		3:{pieceColor: 'white', pieceType: 'queen', eligibleMovesList: []},
-		4:{pieceColor: 'white', pieceType: 'king', eligibleMovesList: [], hasMoved:false, inCheck: false},
-		5:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: []},
-		6:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: []},
-		7:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
-	}, 1: { 
-		0:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		1:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		2:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		3:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		4:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		5:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		6:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		7:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
-	}, 6: { 
-		0:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
-		1:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: []},
-		2:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: []},
-		3:{pieceColor: 'black', pieceType: 'queen', eligibleMovesList: []},
-		4:{pieceColor: 'black', pieceType: 'king', eligibleMovesList: [], hasMoved:false, inCheck: false},
-		5:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: []},
-		6:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: []},
-		7:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
-	}, 7: { 
-		0:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		1:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		2:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		3:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		4:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		5:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		6:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-		7:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
-	}
+  // Hash by ranks black POV
+  0: { 
+    0:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
+    1:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: []},
+    2:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: []},
+    3:{pieceColor: 'white', pieceType: 'queen', eligibleMovesList: []},
+    4:{pieceColor: 'white', pieceType: 'king', eligibleMovesList: [], hasMoved:false, inCheck: false},
+    5:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: []},
+    6:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: []},
+    7:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
+  }, 1: { 
+    0:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    1:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    2:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    3:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    4:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    5:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    6:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    7:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
+  }, 6: { 
+    0:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
+    1:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: []},
+    2:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: []},
+    3:{pieceColor: 'black', pieceType: 'queen', eligibleMovesList: []},
+    4:{pieceColor: 'black', pieceType: 'king', eligibleMovesList: [], hasMoved:false, inCheck: false},
+    5:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: []},
+    6:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: []},
+    7:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
+  }, 7: { 
+    0:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    1:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    2:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    3:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    4:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    5:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    6:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    7:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
+  }
 }
 
 export const pawnSpecialMoves = {
-	diagonalCapture:[[-1,1],[1,1]],
-	// doubleStep added without this object
+  diagonalCapture:[[-1,1],[1,1]],
+  // doubleStep added without this object
 }
 export const kingSpecialMoves = {
-	queensideCastle:[[-2,0]],
-	kingsideCastle:[[2,0]]
+  queensideCastle:[[-2,0]],
+  kingsideCastle:[[2,0]]
 }
 export const rookSpecialMoves = {
-	queensideCastle:[[2,0]],
-	kingsideCastle:[[-2,0]]
+  queensideCastle:[[2,0]],
+  kingsideCastle:[[-2,0]]
 }
