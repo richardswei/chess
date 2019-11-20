@@ -116,6 +116,7 @@ class Chess extends Component {
 
       const legalMovesExist = chessHelpers.eligibleMovesExist(opponent, boardSetupUpdated, newStateObject)
       const checkedKingExists = chessHelpers.searchForChecks(opponent, newStateObject[opponentKingPosition], boardSetupUpdated);
+      console.log([legalMovesExist, checkedKingExists])
       if (checkedKingExists && !legalMovesExist) {
         alert(`${opponent.toUpperCase()} has been checkmated!`);
         newStateObject.jumbotronMessage = `${opponent.toUpperCase()} has been checkmated!`
