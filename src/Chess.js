@@ -19,6 +19,7 @@ class Chess extends Component {
       threatenedSpaces: [],
       whiteKingPosition: topPlayerIsBlack ? [4,7] : [4,0],
       blackKingPosition: topPlayerIsBlack ? [4,0] : [4,7],
+      jumbotronMessage: "WHITE's Move"
     }
   }
 
@@ -70,12 +71,13 @@ class Chess extends Component {
     if (chessHelpers.getValueAtSquare(targetRank, targetFile, highlightedSquares)) {
       /*access boardSetup, pull the item from the hotSquare, overwrite boardSetup at the keys*/
       let copyBoardSetup = JSON.parse(JSON.stringify(boardSetup))
-      // move piece
+
+      // move piece from origin to target. set the hasMoved property to true
+      copyBoardSetup[originRank][originFile].hasMoved=true
+      // make sure key exists
       if (!copyBoardSetup[targetRank]){
         copyBoardSetup[targetRank]={}
       }
-      // move piece from origin to target. set the hasMoved property to true
-      copyBoardSetup[originRank][originFile].hasMoved=true
       copyBoardSetup[targetRank][targetFile]=copyBoardSetup[originRank][originFile];
       copyBoardSetup[originRank][originFile]=null;
 
@@ -104,21 +106,33 @@ class Chess extends Component {
         return;
       };
 
-
-      //look for a stalemate
-      const opponentKingPosition = opponent+"KingPosition";
+      newStateObject.jumbotronMessage = `${opponent.toUpperCase()}'s Move`
 
       // see if a check has occurred against opponent
+      const opponentKingPosition = opponent+"KingPosition";
       const threatenedSpaces = chessHelpers.getThreatsAgainstPlayer(boardSetupUpdated, opponent);
       boardSetupUpdated = chessHelpers.updateOpponentKingMoves(boardSetupUpdated, threatenedSpaces, opponent)
+      
+
+      const legalMovesExist = chessHelpers.eligibleMovesExist(opponent, boardSetupUpdated, newStateObject)
       const checkedKingExists = chessHelpers.searchForChecks(opponent, newStateObject[opponentKingPosition], boardSetupUpdated);
-      if (checkedKingExists) {
+      if (checkedKingExists && !legalMovesExist) {
+        alert(`${opponent.toUpperCase()} has been checkmated!`);
+        newStateObject.jumbotronMessage = `${opponent.toUpperCase()} has been checkmated!`
+      } else if (!legalMovesExist) {
+        alert(`Game ends in a stalemate!`);
+        newStateObject.jumbotronMessage = `Game ends in a stalemate!`
+      } else if (checkedKingExists) {
         newStateObject.check = true;
-        //look for a checkmate
-        alert(`${opponent} is checked!`)
+        alert(`${opponent.toUpperCase()} is checked!`);
+        newStateObject.jumbotronMessage = newStateObject.jumbotronMessage+"-(in check)"
       } else {
         newStateObject.check = false;
       }
+
+      // look for a checkmate
+      // look for a stalemate
+      
 
       // set state if all has passed
       this.setState({
@@ -135,7 +149,7 @@ class Chess extends Component {
   render() {
     return this.state && <div >
       <Jumbotron 
-        playerTurn={this.state.playerTurn}
+        jumbotronMessage={this.state.jumbotronMessage}
       ></Jumbotron>
       <Board className="board"
         handleSquareClick={this.handleSquareClick}
@@ -230,7 +244,7 @@ class Jumbotron extends Component {
 
   render() {
     return <div >
-      <p>{this.props.playerTurn+"'s move"}</p>
+      <p>{this.props.jumbotronMessage}</p>
     </div>
   }
 }

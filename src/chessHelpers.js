@@ -31,6 +31,9 @@ export function getEnPassantThreats(rank, file) {
     return groupByRank(eligible)
   }
 
+// export function getKingSpecialMoves() {
+
+// }
 
 export function getPawnSpecialMoves(rank, file, boardSetup, stateObj) {
   // no need to check for offboard here; 
@@ -211,7 +214,7 @@ export function searchForChecks(kingColor, kingPosition, boardSetup) {
 }
 
 
-export function eligibleMovesExist(color, boardSetup, newStateObject) {
+export function eligibleMovesExist(color, boardSetup, stateObj) {
 	/*
 	return true if even a single legal move exists (for checkmate and stalemate)
 	loop through each square
@@ -224,48 +227,36 @@ export function eligibleMovesExist(color, boardSetup, newStateObject) {
 
 	for(let rank=0; rank<8; rank++) {
 		for(let file=0; file<8; file++) {
-			const piece = boardSetup[rank][file];
+			const piece = getValueAtSquare(rank, file, boardSetup);
+			if (!piece) {continue;}
 			if (piece.pieceColor===color) {
-				piece.eligibleMovesList.forEach((coordinate) => {
+				for (const coordinate in piece.eligibleMovesList) {
 					const targetFile = coordinate[0];
 					const targetRank = coordinate[1];
 		      let copyBoardSetup = JSON.parse(JSON.stringify(boardSetup));
+		      if (!copyBoardSetup[targetRank]){
+		        copyBoardSetup[targetRank]={}
+		      }
 		      copyBoardSetup[targetRank][targetFile]=copyBoardSetup[rank][file];
 		      copyBoardSetup[rank][file]=null;
+		      let newStateObject = {};
+		      newStateObject.enPassantAvailableAt = stateObj.enPassantAvailableAt;
+		      newStateObject.whiteKingPosition = stateObj.whiteKingPosition;
+		      newStateObject.blackKingPosition = stateObj.blackKingPosition;
+		      const movingPiece = copyBoardSetup[targetRank][targetFile];
+					const originSquare = [rank, file];
 
-		      const movingPiece = copyBoardSetup[targetRank][targetFile]
-		      console.log(movingPiece)
-		      let playerKingPosition = newStateObject.color;
-		      if (movingPiece.pieceType==='pawn') {
-		        console.log('here')
-		        // if movingPiece is a pawn that moved behind the enemy pawn, 
-		        // then EP happened
-		        if (newStateObject.enPassantAvailableAt[0]===targetFile && 
-		          newStateObject.enPassantAvailableAt[1]===rank){
-		            copyBoardSetup[rank][targetFile]=null;
-		        }
-		        if (targetRank===0 || targetRank===7) {
-		          // if a pawn reaches the last rank on either side, promote
-		          copyBoardSetup[targetRank][targetFile].pieceType = 'queen';
-		        }
-		      }
-		      if (movingPiece.pieceType==='pawn' && Math.abs(targetRank-rank)===2) {
-		        newStateObject.enPassantAvailableAt = [file, rank];
-		      } else {
-		        newStateObject.enPassantAvailableAt = [null, null];
-		      }
-		      if (movingPiece.pieceType==='king') {
-		        if (movingPiece.pieceColor==='black') {
-		          newStateObject.blackKingPosition = [targetFile, targetRank];
-		        } else {
-		          newStateObject.whiteKingPosition = [targetFile, targetRank];
-		        }
-		        playerKingPosition = [targetFile, targetRank]
-		      }
+		      copyBoardSetup = manageSpecialMoves(movingPiece, originSquare, coordinate, copyBoardSetup, newStateObject)
+		      newStateObject = manageEnPassantState(movingPiece, originSquare, coordinate, newStateObject);
+		      newStateObject = manageKingMove(movingPiece, coordinate, newStateObject);
+
 		      let boardSetupUpdated = updateBoardWithMoves(copyBoardSetup, newStateObject);      
 
-		      searchForChecks(color, playerKingPosition, boardSetupUpdated)
-				})
+		      const checkStillExists = searchForChecks(color, newStateObject[color+'KingPosition'], boardSetupUpdated);
+		      if (!checkStillExists) {
+		      	return true; 
+		     	}
+				}
 			}
 		}
 	}
@@ -281,6 +272,7 @@ export function manageEnPassant(movingPiece, origin, target, boardSetup, newStat
   }
   return boardSetup
 }
+
 
 
 export function managePromotion(movingPiece, origin, target, boardSetup, newStateObject) {
@@ -305,8 +297,8 @@ export function manageKingMove(movingPiece, target, newStateObject) {
 }
 
 export function manageSpecialMoves(movingPiece, origin, target, boardSetup, newStateObject) {
-	const update1 = manageEnPassant(movingPiece, origin, target, boardSetup, newStateObject);
-	return managePromotion(movingPiece, origin, target, update1, newStateObject);
+	const updateBoard1 = manageEnPassant(movingPiece, origin, target, boardSetup, newStateObject);
+	return managePromotion(movingPiece, origin, target, updateBoard1, newStateObject);
 }
 
 export function manageEnPassantState(movingPiece, origin, target, newStateObject) {
