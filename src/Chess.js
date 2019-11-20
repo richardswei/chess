@@ -57,16 +57,15 @@ class Chess extends Component {
   }
   
   executeMove(boardSetup, highlightedSquares, targetSquare, hotSquare) {
+    const currentPlayer = this.state.playerTurn;
     const originRank = hotSquare[1];
     const originFile = hotSquare[0];
     const valueOrigin = chessHelpers.getValueAtSquare(originRank, originFile, boardSetup);
     if (!valueOrigin) return false;
-    if (valueOrigin.pieceColor!==this.state.playerTurn) return false; 
+    if (valueOrigin.pieceColor!==currentPlayer) return false; 
     const targetRank = targetSquare[1];
     const targetFile = targetSquare[0];
-    const opponent = this.state.playerTurn==="white"? "black" : "white";
-    const opponentKingPosition = this.state[opponent+"KingPosition"];
-    let playerKingPosition = this.state[this.state.playerTurn+"KingPosition"];
+    const opponent = currentPlayer==="white"? "black" : "white";
 
     if (chessHelpers.getValueAtSquare(targetRank, targetFile, highlightedSquares)) {
       /*access boardSetup, pull the item from the hotSquare, overwrite boardSetup at the keys*/
@@ -82,40 +81,21 @@ class Chess extends Component {
 
       // resolveboard
       let newStateObject = {};
+      newStateObject.enPassantAvailableAt = this.state.enPassantAvailableAt;
+      newStateObject.whiteKingPosition = this.state.whiteKingPosition;
+      newStateObject.blackKingPosition = this.state.blackKingPosition;
       const movingPiece = copyBoardSetup[targetRank][targetFile]
 
-        console.log(movingPiece)
-      if (movingPiece.pieceType==='pawn') {
-        console.log('here')
-        // if movingPiece is a pawn that moved behind the enemy pawn, 
-        // then EP happened
-        if (this.state.enPassantAvailableAt[0]===targetFile && 
-          this.state.enPassantAvailableAt[1]===originRank){
-            copyBoardSetup[originRank][targetFile]=null;
-        }
-        if (targetRank===0 || targetRank===7) {
-          // if a pawn reaches the last rank on either side, promote
-          copyBoardSetup[targetRank][targetFile].pieceType = 'queen';
-        }
-      }
-      if (movingPiece.pieceType==='pawn' && Math.abs(targetRank-originRank)===2) {
-        newStateObject.enPassantAvailableAt = targetSquare;
-      } else {
-        newStateObject.enPassantAvailableAt = [null, null];
-      }
-      if (movingPiece.pieceType==='king') {
-        if (movingPiece.pieceColor==='black') {
-          newStateObject.blackKingPosition = [targetFile, targetRank];
-        } else {
-          newStateObject.whiteKingPosition = [targetFile, targetRank];
-        }
-        playerKingPosition = [targetFile, targetRank]
-      }
+      copyBoardSetup = chessHelpers.manageSpecialMoves(movingPiece, hotSquare, targetSquare, copyBoardSetup, newStateObject)
+      newStateObject = chessHelpers.manageEnPassantState(movingPiece, hotSquare, targetSquare, newStateObject);
+      newStateObject = chessHelpers.manageKingMove(movingPiece, targetSquare, newStateObject);
       let boardSetupUpdated = chessHelpers.updateBoardWithMoves(copyBoardSetup, newStateObject);      
 
       //  Resolve board and look for any to player's king
       // make sure player did not move into check
-      const playerIsChecked = chessHelpers.searchForChecks(this.state.playerTurn, playerKingPosition, boardSetupUpdated);
+      let playerKingPosition = currentPlayer+"KingPosition";
+      const playerIsChecked = 
+        chessHelpers.searchForChecks(currentPlayer, newStateObject[playerKingPosition], boardSetupUpdated);
       if (this.state.check && playerIsChecked) {
         alert('You are checked!')
         return;
@@ -126,15 +106,15 @@ class Chess extends Component {
 
 
       //look for a stalemate
+      const opponentKingPosition = opponent+"KingPosition";
 
       // see if a check has occurred against opponent
       const threatenedSpaces = chessHelpers.getThreatsAgainstPlayer(boardSetupUpdated, opponent);
       boardSetupUpdated = chessHelpers.updateOpponentKingMoves(boardSetupUpdated, threatenedSpaces, opponent)
-      const checkedKingExists = chessHelpers.searchForChecks(opponent, opponentKingPosition, boardSetupUpdated);
+      const checkedKingExists = chessHelpers.searchForChecks(opponent, newStateObject[opponentKingPosition], boardSetupUpdated);
       if (checkedKingExists) {
         newStateObject.check = true;
         //look for a checkmate
-        
         alert(`${opponent} is checked!`)
       } else {
         newStateObject.check = false;
@@ -143,7 +123,7 @@ class Chess extends Component {
       // set state if all has passed
       this.setState({
         boardSetup: boardSetupUpdated,
-        playerTurn: this.state.playerTurn==="white" ? "black" : "white",
+        playerTurn: opponent,
         threatenedSpaces: threatenedSpaces,
         ...newStateObject
       });

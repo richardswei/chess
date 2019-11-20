@@ -211,7 +211,7 @@ export function searchForChecks(kingColor, kingPosition, boardSetup) {
 }
 
 
-export function eligibleMovesExist(color, kingPosition, boardSetup, newStateObject) {
+export function eligibleMovesExist(color, boardSetup, newStateObject) {
 	/*
 	return true if even a single legal move exists (for checkmate and stalemate)
 	loop through each square
@@ -232,6 +232,39 @@ export function eligibleMovesExist(color, kingPosition, boardSetup, newStateObje
 		      let copyBoardSetup = JSON.parse(JSON.stringify(boardSetup));
 		      copyBoardSetup[targetRank][targetFile]=copyBoardSetup[rank][file];
 		      copyBoardSetup[rank][file]=null;
+
+		      const movingPiece = copyBoardSetup[targetRank][targetFile]
+		      console.log(movingPiece)
+		      let playerKingPosition = newStateObject.color;
+		      if (movingPiece.pieceType==='pawn') {
+		        console.log('here')
+		        // if movingPiece is a pawn that moved behind the enemy pawn, 
+		        // then EP happened
+		        if (newStateObject.enPassantAvailableAt[0]===targetFile && 
+		          newStateObject.enPassantAvailableAt[1]===rank){
+		            copyBoardSetup[rank][targetFile]=null;
+		        }
+		        if (targetRank===0 || targetRank===7) {
+		          // if a pawn reaches the last rank on either side, promote
+		          copyBoardSetup[targetRank][targetFile].pieceType = 'queen';
+		        }
+		      }
+		      if (movingPiece.pieceType==='pawn' && Math.abs(targetRank-rank)===2) {
+		        newStateObject.enPassantAvailableAt = [file, rank];
+		      } else {
+		        newStateObject.enPassantAvailableAt = [null, null];
+		      }
+		      if (movingPiece.pieceType==='king') {
+		        if (movingPiece.pieceColor==='black') {
+		          newStateObject.blackKingPosition = [targetFile, targetRank];
+		        } else {
+		          newStateObject.whiteKingPosition = [targetFile, targetRank];
+		        }
+		        playerKingPosition = [targetFile, targetRank]
+		      }
+		      let boardSetupUpdated = updateBoardWithMoves(copyBoardSetup, newStateObject);      
+
+		      searchForChecks(color, playerKingPosition, boardSetupUpdated)
 				})
 			}
 		}
@@ -239,6 +272,51 @@ export function eligibleMovesExist(color, kingPosition, boardSetup, newStateObje
 	return false
 }
 
+export function manageEnPassant(movingPiece, origin, target, boardSetup, newStateObject) {
+  if (movingPiece.pieceType==='pawn') {
+    if (newStateObject.enPassantAvailableAt[0]===target[0] && 
+      newStateObject.enPassantAvailableAt[1]===origin[1]){
+        boardSetup[origin[1]][target[0]]=null;
+    }
+  }
+  return boardSetup
+}
+
+
+export function managePromotion(movingPiece, origin, target, boardSetup, newStateObject) {
+	if (movingPiece.pieceType==='pawn') {
+	  if (target[1]===0 || target[1]===7) {
+	    // if a pawn reaches the last rank on either side, promote
+	    boardSetup[target[1]][target[0]].pieceType = 'queen';
+	  }
+	}
+	return boardSetup
+}
+
+export function manageKingMove(movingPiece, target, newStateObject) {
+	if (movingPiece.pieceType==='king') {
+	  if (movingPiece.pieceColor==='black') {
+	    newStateObject.blackKingPosition = [target[0], target[1]];
+	  } else {
+	    newStateObject.whiteKingPosition = [target[0], target[1]];
+	  }
+	}
+	return newStateObject;
+}
+
+export function manageSpecialMoves(movingPiece, origin, target, boardSetup, newStateObject) {
+	const update1 = manageEnPassant(movingPiece, origin, target, boardSetup, newStateObject);
+	return managePromotion(movingPiece, origin, target, update1, newStateObject);
+}
+
+export function manageEnPassantState(movingPiece, origin, target, newStateObject) {
+	if (movingPiece.pieceType==='pawn' && Math.abs(target[1]-origin[1])===2) {
+    newStateObject.enPassantAvailableAt = target;
+  } else {
+    newStateObject.enPassantAvailableAt = [null, null];
+  }
+  return newStateObject
+}
 
 /*
 	CONSTANTS
