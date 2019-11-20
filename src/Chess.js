@@ -243,8 +243,8 @@ class Square extends Component {
 class Jumbotron extends Component {
 
   render() {
-    return <div >
-      <p>{this.props.jumbotronMessage}</p>
+    return <div>
+      <h2>{this.props.jumbotronMessage}</h2>
     </div>
   }
 }
