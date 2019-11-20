@@ -80,8 +80,8 @@ export function getPawnSpecialMoves(rank, file, boardSetup, stateObj) {
 }
 
 export function updateOpponentKingMoves(boardSetup, threatenedSpaces, color) {
-  for (var rank=0; rank<8; rank++){
-    for (var file=0; file<8; file++){
+  for (let rank=0; rank<8; rank++){
+    for (let file=0; file<8; file++){
       let piece = getValueAtSquare(rank, file, boardSetup);
       if (!piece) continue;
       if (color===piece.pieceColor && piece.pieceType ==='king'){
@@ -97,19 +97,17 @@ export function updateOpponentKingMoves(boardSetup, threatenedSpaces, color) {
 }
 
 export function getThreatsAgainstPlayer(boardSetup, color) {
-  const negativeIfWhite = color==="white" ? -1 : 1;
   var threatenedSpaces = [];
-  for (var rank=0; rank<8; rank++){
-    for (var file=0; file<8; file++){
+  for (let rank=0; rank<8; rank++){
+    for (let file=0; file<8; file++){
       try {
         const piece = boardSetup[rank][file];
         if (piece.pieceColor===color) continue;
         if (piece.pieceType==='pawn' ) {
-          threatenedSpaces= threatenedSpaces
+  				const negativeIfWhite = piece.pieceColor==="white" ? -1 : 1;
+          threatenedSpaces=threatenedSpaces
             .concat([[file+1, rank+negativeIfWhite],[file-1, rank+negativeIfWhite]])
         } else {
-        	console.log(piece.pieceType)
-        	console.log(piece.eligibleMovesList)
           threatenedSpaces = threatenedSpaces.concat(piece.eligibleMovesList)
         }
       } catch {
@@ -121,8 +119,8 @@ export function getThreatsAgainstPlayer(boardSetup, color) {
 }
 
 export function updateBoardWithMoves(boardSetup, newStateObject={}) {
-  for (var rank=0; rank<8; rank++){
-    for (var file=0; file<8; file++){
+  for (let rank=0; rank<8; rank++){
+    for (let file=0; file<8; file++){
       try {
         // find piece
         const movesetList = this.getEligibleStandardMoves(rank, file, boardSetup);
@@ -208,7 +206,6 @@ export function extendForUnlimitedRange(piece, currentPosition, deltaMovement, b
 export function searchForChecks(kingColor, kingPosition, boardSetup) {
 	// function checks if the current king is checked
 	const threatenedCoordinates = getThreatsAgainstPlayer(boardSetup, kingColor)
-	console.log(threatenedCoordinates)
 	const kingThreatened = getValueAtSquare(kingPosition[1], kingPosition[0], threatenedCoordinates)
 	return kingThreatened ? true : false
 }
@@ -219,11 +216,27 @@ export function eligibleMovesExist(color, kingPosition, boardSetup, newStateObje
 	return true if even a single legal move exists (for checkmate and stalemate)
 	loop through each square
 	find eligible moves
-	for each eligible move, create a copy of the board, and look for a threat to king
+	for each eligible move, create a copy of the board, make the move, and look for a threat to king
 	if no threat, get out, return true
 	else continue
 	if loop through all, return false
 	*/
+
+	for(let rank=0; rank<8; rank++) {
+		for(let file=0; file<8; file++) {
+			const piece = boardSetup[rank][file];
+			if (piece.pieceColor===color) {
+				piece.eligibleMovesList.forEach((coordinate) => {
+					const targetFile = coordinate[0];
+					const targetRank = coordinate[1];
+		      let copyBoardSetup = JSON.parse(JSON.stringify(boardSetup));
+		      copyBoardSetup[targetRank][targetFile]=copyBoardSetup[rank][file];
+		      copyBoardSetup[rank][file]=null;
+				})
+			}
+		}
+	}
+	return false
 }
 
 

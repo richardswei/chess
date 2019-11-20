@@ -80,9 +80,13 @@ class Chess extends Component {
       copyBoardSetup[targetRank][targetFile]=copyBoardSetup[originRank][originFile];
       copyBoardSetup[originRank][originFile]=null;
 
-      const movingPiece = copyBoardSetup[targetRank][targetFile]
+      // resolveboard
       let newStateObject = {};
-      if (movingPiece.pieceColor==='pawn') {
+      const movingPiece = copyBoardSetup[targetRank][targetFile]
+
+        console.log(movingPiece)
+      if (movingPiece.pieceType==='pawn') {
+        console.log('here')
         // if movingPiece is a pawn that moved behind the enemy pawn, 
         // then EP happened
         if (this.state.enPassantAvailableAt[0]===targetFile && 
@@ -94,7 +98,7 @@ class Chess extends Component {
           copyBoardSetup[targetRank][targetFile].pieceType = 'queen';
         }
       }
-      if (movingPiece.pieceColor==='pawn' && Math.abs(targetRank-originRank)===2) {
+      if (movingPiece.pieceType==='pawn' && Math.abs(targetRank-originRank)===2) {
         newStateObject.enPassantAvailableAt = targetSquare;
       } else {
         newStateObject.enPassantAvailableAt = [null, null];
@@ -107,9 +111,9 @@ class Chess extends Component {
         }
         playerKingPosition = [targetFile, targetRank]
       }
+      let boardSetupUpdated = chessHelpers.updateBoardWithMoves(copyBoardSetup, newStateObject);      
 
       //  Resolve board and look for any to player's king
-      let boardSetupUpdated = chessHelpers.updateBoardWithMoves(copyBoardSetup, newStateObject);      
       // make sure player did not move into check
       const playerIsChecked = chessHelpers.searchForChecks(this.state.playerTurn, playerKingPosition, boardSetupUpdated);
       if (this.state.check && playerIsChecked) {
