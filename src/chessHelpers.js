@@ -31,8 +31,32 @@ export function getEnPassantThreats(rank, file) {
     return groupByRank(eligible)
   }
 
-export function getKingSpecialMoves() {
+export function getKingSpecialMoves(rank, file, boardSetup, stateObj) {
+  const currentPiece = boardSetup[rank][file];
+  if (currentPiece.pieceType==='king' && !currentPiece.hasMoved) {
+    const emptyFilesRequired = {
+      0: [1,2,3],
+      7: [5,6]
+    };
+    const kingSpecialMoves = [];
+    const defaultRookFiles = [0, 7];
+    defaultRookFiles.forEach((rookFile) => {
+      const potentialRook = getValueAtSquare(rank, rookFile, boardSetup);
 
+      // check if the piece hasMoved
+      if (!potentialRook.hasMoved) {
+        const castleIneligible = emptyFilesRequired[rookFile].map((emptyFile) => {
+          const square = getValueAtSquare(rank, emptyFile, boardSetup);
+          return square;
+        }).reduce((a, b) =>  (a || b) ? true : false );
+        if (!castleIneligible) {
+          const castleDestination = rookFile<4 ? 2 : 6;
+          kingSpecialMoves.push([castleDestination, rank]);
+        }
+      }        
+    })
+    return kingSpecialMoves;
+  } else return [];
 }
 
 export function getPawnSpecialMoves(rank, file, boardSetup, stateObj) {
@@ -51,7 +75,7 @@ export function getPawnSpecialMoves(rank, file, boardSetup, stateObj) {
         const newY = negativeIfWhite*move[1]+rank;
         return [newX, newY];
       });
-    /*if boardSetup's captureCoordinates do not contain enemies, 
+    /*if boardSetup's captureCoordinates do not contain enemies,
     filter out capture coordinates*/
     const eligibleCapture = captureCoordinates.filter((coord) => {
       const colorAndPiece = getValueAtSquare(coord[1], coord[0], boardSetup)
@@ -122,21 +146,29 @@ export function getThreatsAgainstPlayer(boardSetup, color) {
 }
 
 export function updateBoardWithMoves(boardSetup, newStateObject={}) {
+  const copyBoardSetup = JSON.parse(JSON.stringify(boardSetup))
   for (let rank=0; rank<8; rank++){
     for (let file=0; file<8; file++){
       try {
         // find piece
-        const movesetList = getEligibleStandardMoves(rank, file, boardSetup);
+        let movesetList = getEligibleStandardMoves(rank, file, copyBoardSetup);
         if (!movesetList) continue;
-        const withSpecialPawnMoves = movesetList.concat(getPawnSpecialMoves(rank, file, boardSetup, newStateObject));
+
+        const currentPieceType = copyBoardSetup[rank][file].pieceType
+        if (currentPieceType === "king") {
+          movesetList = movesetList.concat(getKingSpecialMoves(rank, file, copyBoardSetup, newStateObject));
+        }
+        if (currentPieceType === "pawn") {
+          movesetList = movesetList.concat(getPawnSpecialMoves(rank, file, copyBoardSetup, newStateObject));
+        }
         
-        boardSetup[rank][file].eligibleMovesList = withSpecialPawnMoves;
+        copyBoardSetup[rank][file].eligibleMovesList = movesetList;
       } catch {
         continue;
       }
     }
   }
-  return boardSetup
+  return copyBoardSetup
 }
 
 export function getUnthreatenedSpaces(coordinateArray, threatColor, threatSet) {
@@ -172,7 +204,7 @@ export function getEligibleStandardMoves(squareRank, squareFile, boardSetup) {
     return eligibleUnitMoves;
   } else {
     // we use existing unit moves to extend range since all relevant pieces use straight line movement
-    if (eligibleUnitMoves.length===0) return null;
+    if (eligibleUnitMoves.length===0) return [];
     const eligibleDeltas = eligibleUnitMoves.map((coord)=> [coord[0]-squareFile, coord[1]-squareRank] );
     const movesUnlimitedRange = eligibleDeltas.map((deltaCoord)=>{
       return extendForUnlimitedRange(currentPiece, currentPosition, deltaCoord, boardSetup)
@@ -372,12 +404,12 @@ export const defaultSetupWhite = {
   // Nest by file
   0: { 
     0:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
-    1:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: []},
-    2:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: []},
-    3:{pieceColor: 'black', pieceType: 'queen', eligibleMovesList: []},
-    4:{pieceColor: 'black', pieceType: 'king', eligibleMovesList: [], hasMoved:false, inCheck: false},
-    5:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: []},
-    6:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: []},
+    1:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
+    2:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
+    3:{pieceColor: 'black', pieceType: 'queen', eligibleMovesList: [], hasMoved:false},
+    4:{pieceColor: 'black', pieceType: 'king', eligibleMovesList: [], hasMoved:false,},
+    5:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
+    6:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
     7:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
   }, 1: { 
     0:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
@@ -399,12 +431,12 @@ export const defaultSetupWhite = {
     7:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
   }, 7: { 
     0:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
-    1:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: []},
-    2:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: []},
-    3:{pieceColor: 'white', pieceType: 'queen', eligibleMovesList: []},
-    4:{pieceColor: 'white', pieceType: 'king', eligibleMovesList: [], hasMoved:false, inCheck: false},
-    5:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: []},
-    6:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: []},
+    1:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
+    2:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
+    3:{pieceColor: 'white', pieceType: 'queen', eligibleMovesList: [], hasMoved:false},
+    4:{pieceColor: 'white', pieceType: 'king', eligibleMovesList: [], hasMoved:false,},
+    5:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
+    6:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
     7:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
   }
 }
@@ -412,12 +444,12 @@ export const defaultSetupBlack = {
   // Hash by ranks black POV
   0: { 
     0:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
-    1:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: []},
-    2:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: []},
-    3:{pieceColor: 'white', pieceType: 'queen', eligibleMovesList: []},
-    4:{pieceColor: 'white', pieceType: 'king', eligibleMovesList: [], hasMoved:false, inCheck: false},
-    5:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: []},
-    6:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: []},
+    1:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
+    2:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
+    3:{pieceColor: 'white', pieceType: 'queen', eligibleMovesList: [], hasMoved:false},
+    4:{pieceColor: 'white', pieceType: 'king', eligibleMovesList: [], hasMoved:false,},
+    5:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
+    6:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
     7:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
   }, 1: { 
     0:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
@@ -430,12 +462,12 @@ export const defaultSetupBlack = {
     7:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
   }, 6: { 
     0:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
-    1:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: []},
-    2:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: []},
-    3:{pieceColor: 'black', pieceType: 'queen', eligibleMovesList: []},
-    4:{pieceColor: 'black', pieceType: 'king', eligibleMovesList: [], hasMoved:false, inCheck: false},
-    5:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: []},
-    6:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: []},
+    1:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
+    2:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
+    3:{pieceColor: 'black', pieceType: 'queen', eligibleMovesList: [], hasMoved:false},
+    4:{pieceColor: 'black', pieceType: 'king', eligibleMovesList: [], hasMoved:false,},
+    5:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
+    6:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
     7:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
   }, 7: { 
     0:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},

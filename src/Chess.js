@@ -91,6 +91,7 @@ class Chess extends Component {
       copyBoardSetup = chessHelpers.manageSpecialMoves(movingPiece, hotSquare, targetSquare, copyBoardSetup, newStateObject)
       newStateObject = chessHelpers.manageEnPassantState(movingPiece, hotSquare, targetSquare, newStateObject);
       newStateObject = chessHelpers.manageKingMove(movingPiece, targetSquare, newStateObject);
+      console.log(copyBoardSetup);
       let boardSetupUpdated = chessHelpers.updateBoardWithMoves(copyBoardSetup, newStateObject);      
 
       //  Resolve board and look for any to player's king
@@ -116,7 +117,6 @@ class Chess extends Component {
 
       const legalMovesExist = chessHelpers.eligibleMovesExist(opponent, boardSetupUpdated, newStateObject)
       const checkedKingExists = chessHelpers.searchForChecks(opponent, newStateObject[opponentKingPosition], boardSetupUpdated);
-      console.log([legalMovesExist, checkedKingExists])
       if (checkedKingExists && !legalMovesExist) {
         alert(`${opponent.toUpperCase()} has been checkmated!`);
         newStateObject.jumbotronMessage = `${opponent.toUpperCase()} has been checkmated!`
