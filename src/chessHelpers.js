@@ -31,7 +31,7 @@ export function getEnPassantThreats(rank, file) {
     return groupByRank(eligible)
   }
 
-export function getKingSpecialMoves(rank, file, boardSetup, stateObj) {
+export function getKingSpecialMoves(rank, file, boardSetup) {
   const currentPiece = boardSetup[rank][file];
   if (currentPiece.pieceType==='king' && !currentPiece.hasMoved) {
     const emptyFilesRequired = {
@@ -40,6 +40,12 @@ export function getKingSpecialMoves(rank, file, boardSetup, stateObj) {
     };
     const kingSpecialMoves = [];
     const defaultRookFiles = [0, 7];
+    const threatenedSquares = getThreatsAgainstPlayer(boardSetup, currentPiece.pieceColor);
+
+    // cannot castle while in check
+    if (getValueAtSquare(rank, file, threatenedSquares)) return [];
+
+    // check if spaces are empty or in check
     defaultRookFiles.forEach((rookFile) => {
       const potentialRook = getValueAtSquare(rank, rookFile, boardSetup);
 
@@ -47,7 +53,9 @@ export function getKingSpecialMoves(rank, file, boardSetup, stateObj) {
       if (!potentialRook.hasMoved) {
         const castleIneligible = emptyFilesRequired[rookFile].map((emptyFile) => {
           const square = getValueAtSquare(rank, emptyFile, boardSetup);
-          return square;
+          if (square) return true;
+          if (getValueAtSquare(rank, emptyFile, threatenedSquares)) return true;
+          return false;
         }).reduce((a, b) =>  (a || b) ? true : false );
         if (!castleIneligible) {
           const castleDestination = rookFile<4 ? 2 : 6;
@@ -156,7 +164,7 @@ export function updateBoardWithMoves(boardSetup, newStateObject={}) {
 
         const currentPieceType = copyBoardSetup[rank][file].pieceType
         if (currentPieceType === "king") {
-          movesetList = movesetList.concat(getKingSpecialMoves(rank, file, copyBoardSetup, newStateObject));
+          movesetList = movesetList.concat(getKingSpecialMoves(rank, file, copyBoardSetup));
         }
         if (currentPieceType === "pawn") {
           movesetList = movesetList.concat(getPawnSpecialMoves(rank, file, copyBoardSetup, newStateObject));
@@ -275,6 +283,7 @@ export function eligibleMovesExist(color, boardSetup, stateObj) {
           newStateObject.enPassantAvailableAt = stateObj.enPassantAvailableAt;
           newStateObject.whiteKingPosition = stateObj.whiteKingPosition;
           newStateObject.blackKingPosition = stateObj.blackKingPosition;
+          newStateObject.check = stateObj.check;
           const movingPiece = copyBoardSetup[targetRank][targetFile];
           const originSquare = [rank, file];
 
