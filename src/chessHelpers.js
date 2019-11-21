@@ -304,9 +304,35 @@ export function manageEnPassant(movingPiece, origin, target, boardSetup, newStat
   return boardSetup
 }
 
+export function manageCastle(movingPiece, origin, target, boardSetup) {
+  if (movingPiece.pieceType==='king') {
+    const spacesMoved = target[0]-origin[0];
+    const kingRank = target[1];
+    if ( Math.abs(spacesMoved)===2 ){
+      switch(spacesMoved<0) {
+        case true: // if queenside
+          if (!boardSetup[5]){
+            boardSetup[5]={}
+          }
+          console.log("castle queenside")
+          boardSetup[kingRank][3] = boardSetup[kingRank][0]
+          boardSetup[kingRank][0] = null;
+          return boardSetup;
+        case false: // if kingside
+          if (!boardSetup[3]){
+            boardSetup[3]={}
+          }
+          console.log("castle kingside")
+          boardSetup[kingRank][5] = boardSetup[kingRank][7]
+          boardSetup[kingRank][7] = null;
+          return boardSetup;
+        default: console.log('castle error')
+      }
+    }
+  }
+}
 
-
-export function managePromotion(movingPiece, origin, target, boardSetup, newStateObject) {
+export function managePromotion(movingPiece, origin, target, boardSetup) {
   if (movingPiece.pieceType==='pawn') {
     if (target[1]===0 || target[1]===7) {
       // if a pawn reaches the last rank on either side, promote
@@ -329,7 +355,8 @@ export function manageKingMove(movingPiece, target, newStateObject) {
 
 export function manageSpecialMoves(movingPiece, origin, target, boardSetup, newStateObject) {
   const updateBoard1 = manageEnPassant(movingPiece, origin, target, boardSetup, newStateObject);
-  return managePromotion(movingPiece, origin, target, updateBoard1, newStateObject);
+  const updateBoard2 = manageCastle(movingPiece, origin, target, boardSetup);
+  return managePromotion(movingPiece, origin, target, updateBoard1);
 }
 
 export function manageEnPassantState(movingPiece, origin, target, newStateObject) {

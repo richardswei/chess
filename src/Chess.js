@@ -91,7 +91,6 @@ class Chess extends Component {
       copyBoardSetup = chessHelpers.manageSpecialMoves(movingPiece, hotSquare, targetSquare, copyBoardSetup, newStateObject)
       newStateObject = chessHelpers.manageEnPassantState(movingPiece, hotSquare, targetSquare, newStateObject);
       newStateObject = chessHelpers.manageKingMove(movingPiece, targetSquare, newStateObject);
-      console.log(copyBoardSetup);
       let boardSetupUpdated = chessHelpers.updateBoardWithMoves(copyBoardSetup, newStateObject);      
 
       //  Resolve board and look for any to player's king
