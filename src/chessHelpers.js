@@ -476,47 +476,6 @@ export const defaultSetupWhite = {
     7:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
   }
 }
-export const defaultSetupBlack = {
-  // Hash by ranks black POV
-  0: { 
-    0:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
-    1:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
-    2:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
-    3:{pieceColor: 'white', pieceType: 'queen', eligibleMovesList: [], hasMoved:false},
-    4:{pieceColor: 'white', pieceType: 'king', eligibleMovesList: [], hasMoved:false,},
-    5:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
-    6:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
-    7:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
-  }, 1: { 
-    0:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    1:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    2:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    3:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    4:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    5:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    6:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    7:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
-  }, 6: { 
-    0:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    1:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    2:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    3:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    4:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    5:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    6:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    7:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
-  }, 7: { 
-    0:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
-    1:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
-    2:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
-    3:{pieceColor: 'black', pieceType: 'queen', eligibleMovesList: [], hasMoved:false},
-    4:{pieceColor: 'black', pieceType: 'king', eligibleMovesList: [], hasMoved:false,},
-    5:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
-    6:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
-    7:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
-  }
-}
-
 export const pawnSpecialMoves = {
   diagonalCapture:[[-1,1],[1,1]],
   // doubleStep added without this object
