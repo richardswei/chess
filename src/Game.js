@@ -18,8 +18,8 @@ class Game extends Component {
       check: false,
       enPassantAvailableAt: [null, null],
       threatenedSpaces: [],
-      whiteKingPosition: blackOnTop ? [4,7] : [3,0],
-      blackKingPosition: blackOnTop ? [4,0] : [3,7],
+      whiteKingPosition: [4,7], 
+      blackKingPosition: [4,0], 
       jumbotronMessage: "WHITE's Move"
     }
   }
