@@ -488,3 +488,19 @@ export const rookSpecialMoves = {
   queensideCastle:[[2,0]],
   kingsideCastle:[[-2,0]]
 }
+
+export const defaultState = {
+      lastMove: "New Game",
+      history: [],
+      blackOnTop: true,
+      boardSetup: defaultSetupWhite, /*an array of coordinate-piece objects*/
+      highlightedSquares: {}, 
+      hotSquare: null, /*coordinate of the square that's toggled on and prepped for a move*/
+      playerTurn: "white",
+      check: false,
+      enPassantAvailableAt: [null, null],
+      threatenedSpaces: [],
+      whiteKingPosition: [4,0], 
+      blackKingPosition: [4,7], 
+      jumbotronMessage: "WHITE's Move"
+    }

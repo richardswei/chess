@@ -11,24 +11,8 @@ class Game extends Component {
     this.handleNewGame = this.handleNewGame.bind(this);
     this.handleLoadGame = this.handleLoadGame.bind(this);
     this.handleSquareClick = this.handleSquareClick.bind(this);
-    const blackOnTop = true;
-    this.state = {
-      lastMove: "New Game",
-      history: [],
-      blackOnTop: blackOnTop,
-      boardSetup: chessHelpers.defaultSetupWhite, /*an array of coordinate-piece objects*/
-      highlightedSquares: {}, 
-      hotSquare: null, /*coordinate of the square that's toggled on and prepped for a move*/
-      playerTurn: "white",
-      check: false,
-      enPassantAvailableAt: [null, null],
-      threatenedSpaces: [],
-      whiteKingPosition: [4,0], 
-      blackKingPosition: [4,7], 
-      jumbotronMessage: "WHITE's Move"
-    }
+    this.state = chessHelpers.defaultState
   }
-
   componentDidMount() {
     // saveAllPossibleMoves
     const copyBoardSetup = JSON.parse(JSON.stringify(this.state.boardSetup))
@@ -106,7 +90,7 @@ class Game extends Component {
       const playerIsChecked = 
         chessHelpers.searchForChecks(currentPlayer, newStateObject[playerKingPosition], boardSetupUpdated);
       if (this.state.check && playerIsChecked) {
-        alert('You are checked!')
+        alert('You will still be in check!')
         return;
       } else if (playerIsChecked) {
         alert('You cannot move into check!')
