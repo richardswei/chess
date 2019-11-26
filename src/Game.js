@@ -87,7 +87,7 @@ class Game extends Component {
       newStateObject.whiteKingPosition = this.state.whiteKingPosition;
       newStateObject.blackKingPosition = this.state.blackKingPosition;
       const movingPiece = copyBoardSetup[targetRank][targetFile]
-      newStateObject.lastMove = `${movingPiece.pieceColor}: ${movingPiece.pieceType} to ${targetSquare}`;
+      newStateObject.lastMove = `${movingPiece.pieceColor}: ${movingPiece.pieceType} to ${chessHelpers.fileCoordinates[targetSquare[0]]}${targetSquare[1]+1}`;
 
       copyBoardSetup = chessHelpers.manageSpecialMoves(movingPiece, hotSquare, targetSquare, copyBoardSetup, newStateObject)
       newStateObject = chessHelpers.manageEnPassantState(movingPiece, hotSquare, targetSquare, newStateObject);
@@ -217,19 +217,26 @@ class Board extends Component {
     const rows = blackOnTop ? [...boardRows].reverse() : boardRows;
     const columns = blackOnTop ? boardCols : [...boardCols].reverse();
     if (boardSetup) {
-      const boardDisplay = rows.map((row) => {
-          return <div className="boardRow" key={row}>
-            {
-              columns.map((column) => {
-                const rank = row;
-                const file = column;
-                const squareId = row*8+file;
-                const piece=chessHelpers.getValueAtSquare(rank, file, boardSetup);
-                return this.renderSquare(squareId, rank, file, piece)
-              })
-            }
-          </div>
-        });
+      const boardDisplay = <div>
+        <div className="boardRow">
+          {chessHelpers.fileCoordinates.map((letter) =>  
+          <label className="fileLabel">{letter}</label>)}
+        </div>
+        {rows.map((row, index) => {
+                  return <div className="boardRow" key={row}>  
+                    <span>{row+1}</span>
+                    {
+                      columns.map((column) => {
+                        const rank = row;
+                        const file = column;
+                        const squareId = row*8+file;
+                        const piece=chessHelpers.getValueAtSquare(rank, file, boardSetup);
+                        return this.renderSquare(squareId, rank, file, piece)
+                      })
+                    }
+                  </div>
+                })}
+      </div>
       return <div>{boardDisplay}</div>
     }
   }
@@ -265,6 +272,7 @@ class PlayerMove extends Component {
 class History extends Component {
   render() {
     return <ListGroup>
+      Move History
       {this.props.history && this.props.history.map((move, i) => {
         return <ListGroup.Item action
           key = {i}

@@ -40,10 +40,16 @@ ol, ul {
   font-size: 0.8rem
 }
 
+.fileLabel {
+  width: 6vmin;
+  justify-content: center;
+  
+}
+
 .square {
   border: 1px solid #999;
   float: left;
-  font-size: 6vmin;
+  font-size: 5vmin;
   line-height: 6vmin;
   height: 6vmin;
   margin-right: -1px;

@@ -502,3 +502,5 @@ export const defaultState = {
       blackKingPosition: [4,7], 
       jumbotronMessage: "WHITE's Move"
     }
+
+export const fileCoordinates = ["A","B","C","D","E","F","G","H"]
