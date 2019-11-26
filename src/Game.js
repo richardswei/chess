@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
 import './chess.css';
 import * as chessHelpers from './chessHelpers.js'
+import Button from 'react-bootstrap/Button';
+import {Jumbotron, ListGroup, Container, Row, Col} from 'react-bootstrap';
+
 
 class Game extends Component {
   constructor(props) {
@@ -8,8 +11,10 @@ class Game extends Component {
     this.handleNewGame = this.handleNewGame.bind(this);
     this.handleLoadGame = this.handleLoadGame.bind(this);
     this.handleSquareClick = this.handleSquareClick.bind(this);
-    const blackOnTop = false;
+    const blackOnTop = true;
     this.state = {
+      lastMove: "New Game",
+      history: [],
       blackOnTop: blackOnTop,
       boardSetup: chessHelpers.defaultSetupWhite, /*an array of coordinate-piece objects*/
       highlightedSquares: {}, 
@@ -18,8 +23,8 @@ class Game extends Component {
       check: false,
       enPassantAvailableAt: [null, null],
       threatenedSpaces: [],
-      whiteKingPosition: [4,7], 
-      blackKingPosition: [4,0], 
+      whiteKingPosition: [4,0], 
+      blackKingPosition: [4,7], 
       jumbotronMessage: "WHITE's Move"
     }
   }
@@ -88,6 +93,7 @@ class Game extends Component {
       newStateObject.whiteKingPosition = this.state.whiteKingPosition;
       newStateObject.blackKingPosition = this.state.blackKingPosition;
       const movingPiece = copyBoardSetup[targetRank][targetFile]
+      newStateObject.lastMove = `${movingPiece.pieceColor}: ${movingPiece.pieceType} to ${targetSquare}`;
 
       copyBoardSetup = chessHelpers.manageSpecialMoves(movingPiece, hotSquare, targetSquare, copyBoardSetup, newStateObject)
       newStateObject = chessHelpers.manageEnPassantState(movingPiece, hotSquare, targetSquare, newStateObject);
@@ -115,6 +121,8 @@ class Game extends Component {
       boardSetupUpdated = chessHelpers.updateOpponentKingMoves(boardSetupUpdated, threatenedSpaces, opponent)
       
 
+      // look for a checkmate
+      // look for a stalemate
       const legalMovesExist = chessHelpers.eligibleMovesExist(opponent, boardSetupUpdated, newStateObject)
       const checkedKingExists = chessHelpers.searchForChecks(opponent, newStateObject[opponentKingPosition], boardSetupUpdated);
       if (checkedKingExists && !legalMovesExist) {
@@ -130,13 +138,12 @@ class Game extends Component {
       } else {
         newStateObject.check = false;
       }
-
-      // look for a checkmate
-      // look for a stalemate
       
 
       // set state if all has passed
+      console.log(this.state.history)
       this.setState({
+        history: this.state.history.concat(this.state),
         boardSetup: boardSetupUpdated,
         playerTurn: opponent,
         threatenedSpaces: threatenedSpaces,
@@ -148,14 +155,35 @@ class Game extends Component {
   }
 
   render() {
-    return this.state && <div >
-      <Jumbotron 
-        jumbotronMessage={this.state.jumbotronMessage}
-      ></Jumbotron>
-      <Board className="board"
-        handleSquareClick={this.handleSquareClick}
-        {...this.state}
-      ></Board>
+    return this.state && 
+    <div>
+      <Jumbotron fluid >
+        <h1>Chess</h1>
+      </Jumbotron>
+      <br/>
+      <Container>
+        <Row>
+        </Row>
+        <Row>
+          <PlayerMove 
+            jumbotronMessage={this.state.jumbotronMessage}
+          ></PlayerMove>
+        </Row>
+        <Row>
+          <Col className="chessboard" xs={12} md={8}>
+              <Board className="board"
+                handleSquareClick={this.handleSquareClick}
+                {...this.state}
+              ></Board>
+            </Col>
+            <Col className="moveHistory" xs={6} md={4}>
+              <History
+                lastMove={this.state.lastMove}
+                history={this.state.history}
+              ></History>
+          </Col>
+        </Row>
+      </Container>
     </div>
   }
 }
@@ -171,7 +199,7 @@ class Board extends Component {
       key={squareId}
       color={(rank%2+squareId%2
         /*this plus one for rotating board*/
-        +1 )%2===0 ? "black" : "white"}
+        )%2===0 ? "black" : "white"}
       highlighted={chessHelpers.getValueAtSquare(rank, file, this.props.highlightedSquares)}
       coordinate={[file,rank]}
       symbol = {this.getPieceSymbol(piece)}
@@ -192,10 +220,8 @@ class Board extends Component {
   }
 
   buildBoard(boardSetup, blackOnTop, boardRows, boardCols) {
-    console.log([boardRows, boardCols])
-    const rows = blackOnTop ? boardRows : [...boardRows].reverse();
+    const rows = blackOnTop ? [...boardRows].reverse() : boardRows;
     const columns = blackOnTop ? boardCols : [...boardCols].reverse();
-    console.log([rows, columns])
     if (boardSetup) {
       const boardDisplay = rows.map((row) => {
           return <div className="boardRow" key={row}>
@@ -235,12 +261,28 @@ class Square extends Component {
   }
 }
 
-class Jumbotron extends Component {
-
+class PlayerMove extends Component {
   render() {
     return <div>
-      <h2>{this.props.jumbotronMessage}</h2>
+      <h5>{this.props.jumbotronMessage}</h5>
     </div>
+  }
+}
+
+class History extends Component {
+  render() {
+    return <ListGroup>
+      {this.props.history && this.props.history.map((move, i) => {
+        return <ListGroup.Item 
+          variant='dark'
+          className='move'>
+          {move.lastMove}
+        </ListGroup.Item>
+      })}
+      <ListGroup.Item 
+        variant='dark'
+        className='move'>{this.props.lastMove}</ListGroup.Item>
+    </ListGroup>
   }
 }
 

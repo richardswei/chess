@@ -1,10 +1,10 @@
 body {
-  /*font: 14px "Century Gothic", Futura, sans-serif;*/
-  margin: 5vmin;
 }
+
 h1 {
   width: 100vmin
 }
+
 ol, ul {
   /*padding-left: 30px;*/
 }
@@ -15,22 +15,42 @@ ol, ul {
   display: table;
 }
 
+.boardRow {
+  min-width: 50vmin
+}
+
 .status {
   margin-bottom: 10px;
 }
 
+.chessboard {
+  /*min-width: 60vmin*/
+  display: flex;
 
-button, .square {
+  align-items: center;
+
+  justify-content: center;
+
+}
+
+.moveHistory {
+  /*font-size: 0.8rem;*/
+  max-height: 50vmin;
+  overflow: auto;
+  font-size: 0.8rem
+}
+
+.square {
   border: 1px solid #999;
   float: left;
-  font-size: 8vmin;
-  line-height: 10vmin;
-  height: 10vmin;
+  font-size: 6vmin;
+  line-height: 6vmin;
+  height: 6vmin;
   margin-right: -1px;
   margin-top: -1px;
   padding: 0;
   text-align: center;
-  width: 10vmin;
+  width: 6vmin;
 }
 
 .black{
@@ -55,4 +75,5 @@ button, .square {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: "Arial", Helvetica, serif
 }

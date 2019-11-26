@@ -74,13 +74,13 @@ export function getPawnSpecialMoves(rank, file, boardSetup, stateObj) {
   let validMoves = [];
   const currentPiece = boardSetup[rank][file];
   if (currentPiece.pieceType==='pawn') {
-    const negativeIfWhite = (currentPiece.pieceColor==='white') ? -1 : 1
+    const directionalConstant = (currentPiece.pieceColor==='black') ? -1 : 1
 
     /*CHECK FOR DIAGONAL CAPTURE*/
     const captureCoordinates = pawnSpecialMoves
       .diagonalCapture.map((move) => {
         const newX = move[0]+file;
-        const newY = negativeIfWhite*move[1]+rank;
+        const newY = directionalConstant*move[1]+rank;
         return [newX, newY];
       });
     /*if boardSetup's captureCoordinates do not contain enemies,
@@ -96,10 +96,10 @@ export function getPawnSpecialMoves(rank, file, boardSetup, stateObj) {
       /*  if pawn has not moved and no piece is two or one in front
       add double advancement coordinates */ 
       const blocked = 
-        getValueAtSquare(rank+negativeIfWhite*2, file, boardSetup) ||
-        getValueAtSquare(rank+negativeIfWhite*1, file, boardSetup);
+        getValueAtSquare(rank+directionalConstant*2, file, boardSetup) ||
+        getValueAtSquare(rank+directionalConstant*1, file, boardSetup);
       if (!blocked) {
-        validMoves.push([file, rank+negativeIfWhite*2])
+        validMoves.push([file, rank+directionalConstant*2])
       }
     }
     /*CHECK FOR EN PASSANT*/
@@ -107,7 +107,7 @@ export function getPawnSpecialMoves(rank, file, boardSetup, stateObj) {
       const vulnerablePawnPosition = stateObj.enPassantAvailableAt
       const enPassantMoves = getEnPassantThreats(vulnerablePawnPosition[1], vulnerablePawnPosition[0])
       if (getValueAtSquare(rank,file,enPassantMoves)) {
-        validMoves.push([vulnerablePawnPosition[0],vulnerablePawnPosition[1]+negativeIfWhite])
+        validMoves.push([vulnerablePawnPosition[0],vulnerablePawnPosition[1]+directionalConstant])
       }
     }
   }
@@ -139,9 +139,9 @@ export function getThreatsAgainstPlayer(boardSetup, color) {
         const piece = boardSetup[rank][file];
         if (piece.pieceColor===color) continue;
         if (piece.pieceType==='pawn' ) {
-          const negativeIfWhite = piece.pieceColor==="white" ? -1 : 1;
+          const directionalConstant = piece.pieceColor==="black" ? -1 : 1;
           threatenedSpaces=threatenedSpaces
-            .concat([[file+1, rank+negativeIfWhite],[file-1, rank+negativeIfWhite]])
+            .concat([[file+1, rank+directionalConstant],[file-1, rank+directionalConstant]])
         } else {
           threatenedSpaces = threatenedSpaces.concat(piece.eligibleMovesList)
         }
@@ -194,8 +194,8 @@ export function getEligibleStandardMoves(squareRank, squareFile, boardSetup) {
   const piece = pieceAttributesByType[currentPiece.pieceType]
   const unitMoves = piece.unitMoves;
   const newCoordinates = unitMoves.map((deltaCoord) => {
-    const negativeIfWhite = currentPiece.pieceColor==='white' ? -1 : 1;  
-    return [(squareFile+negativeIfWhite*deltaCoord[0]), (squareRank+negativeIfWhite*deltaCoord[1])] 
+    const directionalConstant = currentPiece.pieceColor==='black' ? -1 : 1;  
+    return [(squareFile+directionalConstant*deltaCoord[0]), (squareRank+directionalConstant*deltaCoord[1])] 
   });
   // first check for any directions that don't immediately go off-board
   const eligibleUnitMoves = newCoordinates.filter((coord) => {
@@ -439,33 +439,6 @@ export const defaultSetupWhite = {
   // Hash by ranks white POV
   // Nest by file
   0: { 
-    0:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
-    1:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
-    2:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
-    3:{pieceColor: 'black', pieceType: 'queen', eligibleMovesList: [], hasMoved:false},
-    4:{pieceColor: 'black', pieceType: 'king', eligibleMovesList: [], hasMoved:false,},
-    5:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
-    6:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
-    7:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
-  }, 1: { 
-    0:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    1:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    2:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    3:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    4:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    5:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    6:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    7:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
-  }, 6: { 
-    0:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    1:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    2:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    3:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    4:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    5:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    6:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
-    7:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
-  }, 7: { 
     0:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
     1:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
     2:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
@@ -474,6 +447,33 @@ export const defaultSetupWhite = {
     5:{pieceColor: 'white', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
     6:{pieceColor: 'white', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
     7:{pieceColor: 'white', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
+  }, 1: { 
+    0:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    1:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    2:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    3:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    4:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    5:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    6:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    7:{pieceColor: 'white', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
+  }, 6: { 
+    0:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    1:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    2:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    3:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    4:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    5:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    6:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false},
+    7:{pieceColor: 'black', pieceType: 'pawn', eligibleMovesList: [], hasMoved:false} 
+  }, 7: { 
+    0:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false},
+    1:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
+    2:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
+    3:{pieceColor: 'black', pieceType: 'queen', eligibleMovesList: [], hasMoved:false},
+    4:{pieceColor: 'black', pieceType: 'king', eligibleMovesList: [], hasMoved:false,},
+    5:{pieceColor: 'black', pieceType: 'bishop', eligibleMovesList: [], hasMoved:false},
+    6:{pieceColor: 'black', pieceType: 'knight', eligibleMovesList: [], hasMoved:false},
+    7:{pieceColor: 'black', pieceType: 'rook', eligibleMovesList: [], hasMoved:false} 
   }
 }
 export const pawnSpecialMoves = {
