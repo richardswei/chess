@@ -11,6 +11,7 @@ class Game extends Component {
     this.handleNewGame = this.handleNewGame.bind(this);
     this.handleLoadGame = this.handleLoadGame.bind(this);
     this.handleSquareClick = this.handleSquareClick.bind(this);
+    this.handleHistoryClick = this.handleHistoryClick.bind(this);
     this.state = chessHelpers.defaultState
   }
   componentDidMount() {
@@ -28,7 +29,16 @@ class Game extends Component {
   handleLoadGame() {
   }
 
+  handleHistoryClick(props, index) {
+    if (index===0) {
+      this.setState(chessHelpers.defaultState);
+    } else {
+      this.setState(props.history[index]);
+    }
+  }
+
   handleSquareClick(props) {
+    console.log(this.state)
     if (!this.state.hotSquare){
       // if a square has not been focused, focus it 
       const square = chessHelpers.getValueAtSquare(props.coordinate[1], props.coordinate[0], this.state.boardSetup);
@@ -125,7 +135,6 @@ class Game extends Component {
       
 
       // set state if all has passed
-      console.log(this.state.history)
       this.setState({
         history: this.state.history.concat(this.state),
         boardSetup: boardSetupUpdated,
@@ -162,6 +171,7 @@ class Game extends Component {
             </Col>
             <Col className="moveHistory" xs={6} md={4}>
               <History
+                handleHistoryClick={this.handleHistoryClick}
                 lastMove={this.state.lastMove}
                 history={this.state.history}
               ></History>
@@ -229,7 +239,6 @@ class Board extends Component {
     const blackOnTop = this.props.blackOnTop;
     const boardRows = Array(8).fill(1).map((_, i) => i);
     const boardCols = Array(8).fill(1).map((_, i) => i);
-
     return this.buildBoard(boardSetup, blackOnTop, boardRows, boardCols);
   }
 }
@@ -257,7 +266,9 @@ class History extends Component {
   render() {
     return <ListGroup>
       {this.props.history && this.props.history.map((move, i) => {
-        return <ListGroup.Item 
+        return <ListGroup.Item action
+          key = {i}
+          onClick={() => this.props.handleHistoryClick(this.props, i)}
           variant='dark'
           className='move'>
           {move.lastMove}

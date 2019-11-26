@@ -323,7 +323,6 @@ export function manageCastle(movingPiece, origin, target, boardSetup) {
           if (!boardSetup[5]){
             boardSetup[5]={}
           }
-          console.log("castle queenside")
           boardSetup[kingRank][3] = boardSetup[kingRank][0]
           boardSetup[kingRank][0] = null;
           return boardSetup;
@@ -331,7 +330,6 @@ export function manageCastle(movingPiece, origin, target, boardSetup) {
           if (!boardSetup[3]){
             boardSetup[3]={}
           }
-          console.log("castle kingside")
           boardSetup[kingRank][5] = boardSetup[kingRank][7]
           boardSetup[kingRank][7] = null;
           return boardSetup;
